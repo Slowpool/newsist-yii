@@ -11,7 +11,9 @@ class NewsControler extends yii\web\Controller {
 
     // TODO what does behavior() and actions() do?
 
+    // TODO how to mark that it's GET
     public function actionCreate() {
+        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $this->render('create');
     }
 
