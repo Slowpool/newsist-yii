@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` DATETIME NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` DATETIME NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nCREATE TABLE `news_items_tags`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL\n);\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 16,
-                    "column": 19
+                    "lineNumber": 20,
+                    "column": 39
                 },
                 "position": {
-                    "lineNumber": 16,
-                    "column": 19
+                    "lineNumber": 20,
+                    "column": 39
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 6,
+                "lineNumber": 1,
                 "column": 1
             },
-            "firstPositionDeltaTop": 0
+            "firstPositionDeltaTop": -1
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -49,8 +49,8 @@
                         {
                             "type": 4,
                             "index": 0,
-                            "resultId": "1f546b97-67fc-4bab-c539-d8c2079c849b",
-                            "content": "OK, 0 records retrieved in 0s"
+                            "resultId": "4e9f6f74-0174-4d0c-d1a8-524b6f4f7509",
+                            "content": "OK, 0 records retrieved in 0.998ms"
                         }
                     ]
                 },
@@ -125,7 +125,7 @@
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 120
+                            "length": 135
                         },
                         "contentStart": 0,
                         "state": 0
@@ -137,7 +137,7 @@
         {
             "state": {
                 "start": 7,
-                "end": 15,
+                "end": 16,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -157,7 +157,7 @@
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 226
+                            "length": 297
                         },
                         "contentStart": 0,
                         "state": 0
@@ -168,8 +168,8 @@
         },
         {
             "state": {
-                "start": 16,
-                "end": 20,
+                "start": 17,
+                "end": 21,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -189,7 +189,7 @@
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 88
+                            "length": 103
                         },
                         "contentStart": 0,
                         "state": 0
@@ -200,8 +200,40 @@
         },
         {
             "state": {
-                "start": 21,
-                "end": 21,
+                "start": 22,
+                "end": 29,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 4,
+                            "index": 0,
+                            "resultId": "5f228ea2-1694-499b-a020-9d52a41ce1dc",
+                            "content": "OK, 0 records retrieved in 33.027ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 222
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 30,
+                "end": 30,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [
