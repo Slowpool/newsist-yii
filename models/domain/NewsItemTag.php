@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\NEW_domain;
+namespace app\models\domain;
 
 use Yii;
 

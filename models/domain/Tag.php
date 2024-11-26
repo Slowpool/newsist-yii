@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\NEW_domain;
+namespace app\models\domain;
 
 use Yii;
 
@@ -52,6 +52,6 @@ class Tag extends \yii\db\ActiveRecord
      */
     public function getNewsItemsTags()
     {
-        return $this->hasMany(NewsItemsTags::class, ['tag_id' => 'id']);
+        return $this->hasMany(NewsItemTag::class, ['tag_id' => 'id']);
     }
 }
