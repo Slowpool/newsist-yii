@@ -18,16 +18,24 @@ class NewsController extends Controller
 
     // TODO what does behavior() and actions() do?
 
-    // TODO how to mark that it's GET
+    // TODO mark as GET
     public function actionCreate()
     {
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $this->render('create');
     }
 
-    public function actionMain()
+    // TODO mark as POST and add model
+    // public function actionCreate($new_news_item)
+    // {
+    //     return $this->render('create');
+    // }
+
+    public function actionHome()
     {
-        return $this->render('main');
+        // TODO add parameters
+        $model = selectNews();
+        return $this->render('home', compact('model'));
     }
 
     // nice. the method name must be exactly the same as in a prettyUrl options.
