@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers;
 
 use yii\web\Controller;
@@ -11,23 +13,27 @@ use yii\web\Controller;
 
 // namespace 
 
-class NewsController extends Controller {
+class NewsController extends Controller
+{
 
     // TODO what does behavior() and actions() do?
 
     // TODO how to mark that it's GET
-    public function actionCreate() {
+    public function actionCreate()
+    {
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $this->render('create');
     }
 
-    public function actionIndex($news_item_id) {
-        return $this->render('news-item',
-        [
-            'model' => $news_item_id
-        ]);
+    public function actionMain()
+    {
+        return $this->render('main');
     }
 
+    // nice. the method name must be exactly the same as in a prettyUrl options.
+    // the name actionNewsItem will cause an exception. shocked. 
+    public function actionNewsitem(string $news_item_id)
+    {
+        return $this->render('newsitem', compact('news_item_id'));
+    }
 }
-
-?>

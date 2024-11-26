@@ -1,3 +1,4 @@
+here you can create a new news
 <?php
-echo "here you can create a new news";
+
 ?>

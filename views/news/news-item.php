@@ -1,5 +1,0 @@
-
-speicifc news item
-<?php
-
-?>
