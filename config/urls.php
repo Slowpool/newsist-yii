@@ -6,7 +6,8 @@ return [
         'encodeParams' => false, // TODO what does this do?
     ],
     [
-        'pattern' => 'a-look-at-a-specific-news-item',
-        'route' => 'news/<news:\d+>' // TODO how to specify news id restriction
+        'pattern' => 'a-look-at-a-specific-news-item/<news_item_id:\d+>',
+        'route' => 'news', // TODO how to specify news id restriction
+        'encodeParams' => true,
     ]
 ];

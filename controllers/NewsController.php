@@ -21,6 +21,13 @@ class NewsController extends Controller {
         return $this->render('create');
     }
 
+    public function actionIndex($news_item_id) {
+        return $this->render('news-item',
+        [
+            'model' => $news_item_id
+        ]);
+    }
+
 }
 
 ?>

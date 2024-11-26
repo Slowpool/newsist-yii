@@ -1,0 +1,5 @@
+
+speicifc news item
+<?php
+
+?>
