@@ -7,8 +7,10 @@ use yii\bootstrap5\Html;
 $this->title = 'Main';
 ?>
 <div class="site-index">
+'/create-a-new-news-item', 'SHARE THE NEWS'
     <?php
-    Html::link('/create-a-new-news-item', 'SHARE THE NEWS');
+// TODO reference to a new news item
+// Html::link('/create-a-new-news-item', 'SHARE THE NEWS');
 // TODO complete main page
 
     ?>

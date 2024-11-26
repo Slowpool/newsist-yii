@@ -1,13 +1,17 @@
 <?php
 
-use Yii;
-use yii\filters\AccessControl;
-use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+namespace app\controllers;
 
-class NewsControler extends yii\web\Controller {
+use yii\web\Controller;
+// use Yii;
+// use yii\web\Response;
+// use yii\filters\VerbFilter;
+// use app\models\LoginForm;
+// use app\models\ContactForm;
+
+// namespace 
+
+class NewsController extends Controller {
 
     // TODO what does behavior() and actions() do?
 

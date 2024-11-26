@@ -45,10 +45,8 @@ $config = [
         'db' => $db,
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => false,
-            'rules' => [
-                require 'urls.php'
-            ],
+            // 'showScriptName' => false,
+            'rules' => require 'urls.php',
         ],
     ],
     'params' => $params,
