@@ -34,7 +34,7 @@ class NewsController extends Controller
     public function actionHome()
     {
         // TODO add parameters
-        $model = selectNews();
+        $model = $this->selectNews();
         return $this->render('home', compact('model'));
     }
 
@@ -44,4 +44,12 @@ class NewsController extends Controller
     {
         return $this->render('newsitem', compact('news_item_id'));
     }
+
+    
+    // move somewhere to service layer
+    public static function selectNews() {
+        return ["news" => "news content"];
+    }
+
+    // TODO handle redirecting to http://localhost/ after logout
 }
