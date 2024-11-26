@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\models\domain;
+namespace app\models\OLD_domain;
 
 class Tag
 {

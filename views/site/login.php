@@ -47,7 +47,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <div style="color:#999;">
                 You may login with <strong>admin/admin</strong> or <strong>demo/demo</strong>.<br>
-                To modify the username/password, please check out the code <code>app\models\domain\User::$users</code>.
+                To modify the username/password, please check out the code <code>app\models\OLD_domain\User::$users</code>.
             </div>
 
         </div>

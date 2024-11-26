@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\domain;
+namespace app\models\NEW_domain;
 
 class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
 {

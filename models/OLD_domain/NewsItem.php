@@ -2,7 +2,7 @@
 // Q why to use new namespace for each model? wouldn't it be better to use just app\models
 // a: to be found by autoloader.
 // q: what is it
-namespace app\models\domain;
+namespace app\models\OLD_domain;
 
 use DateTime;
 
