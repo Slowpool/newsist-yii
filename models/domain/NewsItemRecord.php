@@ -72,6 +72,9 @@ class NewsItemRecord extends \yii\db\ActiveRecord
      * {@inheritdoc}
      */
     public function beforeSave($insert) {
+        // despite to error it works. weird.
+        // despite to error it works. great.
+        // i don't need to fix error to execute app.
         $this->posted_at = $this->posted_at->format('Y-m-d H:i:s');
         return parent::beforeSave($insert);
     }

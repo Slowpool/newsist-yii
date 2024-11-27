@@ -49,16 +49,24 @@ class NewsController extends Controller
             ],
         ];
     }
-    // TODO what does actions() do?
 
+    public function actions() {
+        return [
+            // TODO sort out this stuff
+            'item' => 'create',
+            'news-item-create' => 'NewsItemCreate'
+        ];
+    }
+
+    // GET
     public function actionCreate()
     {
-        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $model = new NewNewsItemModel();
         return $this->render('create', compact('model'));
     }
 
-    public function actionNewsitemadd()
+    // POST
+    public function actionNewsItemCreate()
     {
         $data = Yii::$app->request->post('NewNewsItemModel');
 
@@ -69,8 +77,8 @@ class NewsController extends Controller
         $new_news_item->author_id = Yii::$app->user->id;
         $new_news_item->posted_at = new DateTime();
         // TODO tags
-        $new_news_item->save();
-        if ($new_news_item->refresh()) {
+        // TODO probably refresh is redundant here
+        if ($new_news_item->save() && $new_news_item->refresh()) {
             return $this->redirect(Url::to(["a-look-at-a-specific-news-item/$new_news_item->id"]));
             // return $this->render('newsitem', ['news_item_id' => $new_news_item->id]);
         } else {
@@ -89,7 +97,7 @@ class NewsController extends Controller
         return $this->render('home', compact('model'));
     }
 
-    // nice. the method name must be exactly the same as in a prettyUrl options.
+    // nice. the method name must be exactly the same as one in a prettyUrl options.
     // the name actionNewsItem will cause an exception. shocked. 
     public function actionNewsitem(string $news_item_id)
     {

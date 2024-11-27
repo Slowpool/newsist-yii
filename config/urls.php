@@ -29,7 +29,7 @@ return [
     ],
     [
         'pattern' => 'a-look-at-a-specific-news-item/<news_item_id:\d+>',
-        'route' => 'news/newsitem', // TODO how to specify news id restriction
+        'route' => 'news/item', // TODO how to specify news id restriction
         'encodeParams' => false
     ]
 ];
