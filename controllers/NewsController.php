@@ -57,6 +57,11 @@ class NewsController extends Controller
         $model = new NewNewsItemModel();
         if ($model->load(Yii::$app->request->post())) {
             $new_news_item = new NewsItemRecord();
+            $new_news_item->title = $model->title;
+            $new_news_item->content = $model->content;
+            $new_news_item->number_of_likes = 0;
+            $new_news_item->author_id = Yii::$app->user->;
+
             $news_item_id = $this->addToDbAndGetId($model);
             // TODO redirect to just created news item
             return $this->render('newsitem', compact('news_item_id'));
