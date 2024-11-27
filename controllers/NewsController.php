@@ -50,23 +50,21 @@ class NewsController extends Controller
         ];
     }
 
-    public function actions() {
-        return [
-            // TODO sort out this stuff
-            'item' => 'create',
-            'news-item-create' => 'NewsItemCreate'
-        ];
-    }
+    // public function actions() {
+    //     return [
+
+    //     ];
+    // }
 
     // GET
-    public function actionCreate()
+    public function actionANewNewsItemForm()
     {
         $model = new NewNewsItemModel();
         return $this->render('create', compact('model'));
     }
 
     // POST
-    public function actionNewsItemCreate()
+    public function actionSendANewNewsItem()
     {
         $data = Yii::$app->request->post('NewNewsItemModel');
 
@@ -76,10 +74,14 @@ class NewsController extends Controller
         $new_news_item->number_of_likes = 0;
         $new_news_item->author_id = Yii::$app->user->id;
         $new_news_item->posted_at = new DateTime();
+        $tags = explode(',', $data['tags']);
+        // foreach()
+        $new_news_item->
+
         // TODO tags
         // TODO probably refresh is redundant here
         if ($new_news_item->save() && $new_news_item->refresh()) {
-            return $this->redirect(Url::to(["a-look-at-a-specific-news-item/$new_news_item->id"]));
+            return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
             // return $this->render('newsitem', ['news_item_id' => $new_news_item->id]);
         } else {
             $model = new NewNewsItemModel();
@@ -90,6 +92,7 @@ class NewsController extends Controller
         }
     }
 
+    // GET
     public function actionHome()
     {
         // TODO fill the model
@@ -97,12 +100,28 @@ class NewsController extends Controller
         return $this->render('home', compact('model'));
     }
 
-    // nice. the method name must be exactly the same as one in a prettyUrl options.
-    // the name actionNewsItem will cause an exception. shocked. 
-    public function actionNewsitem(string $news_item_id)
+    // GET
+    public function actionNewsItem(string $news_item_id)
     {
-        // TODO passing the news_item_id is temporary
-        return $this->render('newsitem', compact('news_item_id'));
+        // i hope it has an sql-injection protection
+        $model = NewsItemRecord::findOne($news_item_id);
+        // try {
+        // }
+        // catch (\Exception) {
+        //     return 'you got exception which wasn\'t expected at all';
+        // }
+
+        if ($model == null) {
+            return $this->render(
+                'SiteController/error',
+                [
+                    'name' => 'Not found',
+                    'message' => "A news item with id$news_item_id does not exist."
+                ]
+            );
+        }
+
+        return $this->render('news_item', compact('model'));
     }
 
     // latch

@@ -23,13 +23,13 @@ return [
         'encodeParams' => false
     ],
     [
-        'pattern' => 'create-a-new-news-item',
-        'route' => 'news/create',
+        'pattern' => 'fill-in-a-new-news-item',
+        'route' => 'news/a-new-news-item-form',
         'encodeParams' => false
     ],
     [
         'pattern' => 'a-look-at-a-specific-news-item/<news_item_id:\d+>',
-        'route' => 'news/item', // TODO how to specify news id restriction
+        'route' => 'news/news-item',
         'encodeParams' => false
     ]
 ];

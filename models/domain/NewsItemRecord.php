@@ -69,6 +69,17 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Tags]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTags()
+    {
+        return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
+                    ->viaTable('NewsItemTagRecord', ['news_item' => 'id']);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function beforeSave($insert) {
@@ -76,6 +87,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         // despite to error it works. great.
         // i don't need to fix error to execute app.
         $this->posted_at = $this->posted_at->format('Y-m-d H:i:s');
+        $this->title = strtoupper($this->title);
         return parent::beforeSave($insert);
     }
 

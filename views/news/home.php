@@ -7,7 +7,7 @@ $this->title = 'Main';
 ?>
 
 <section class="site-index">
-    <?= Html::a('SHARE THE NEWS ITEM', '/create-a-new-news-item') ?>
+    <?= Html::a('SHARE THE NEWS ITEM', '/fill-in-a-new-news-item') ?>
 
 </section>
 
