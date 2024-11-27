@@ -12,7 +12,7 @@ use app\models\domain\TagRecord;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-
+use DateTime;
 // use Yii;
 // use yii\web\Response;
 // use yii\filters\VerbFilter;
@@ -55,25 +55,23 @@ class NewsController extends Controller
     {
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $model = new NewNewsItemModel();
-        if ($model->load(Yii::$app->request->post())) {
-            $new_news_item = new NewsItemRecord();
-            $new_news_item->title = $model->title;
-            $new_news_item->content = $model->content;
-            $new_news_item->number_of_likes = 0;
-            $new_news_item->author_id = Yii::$app->user->;
-
-            $news_item_id = $this->addToDbAndGetId($model);
-            // TODO redirect to just created news item
-            return $this->render('newsitem', compact('news_item_id'));
-        }
-        else {
-            return $this->render('create', compact('model'));
-        }
+        return $this->render('create', compact('model'));
     }
 
-    // latch
-    function addToDbAndGetId($model) : int {
-        return 1;
+    public function actionNewsitemadd() {
+        $data = Yii::$app->request->post('NewNewsItemModel');
+        $model->($data, 'NewNewsItemModel');
+        $new_news_item = new NewsItemRecord();
+        $new_news_item->title = $data['title'];
+        $new_news_item->content = $data['content'];
+        $new_news_item->number_of_likes = 0;
+        $new_news_item->author_id = Yii::$app->user->id;
+        $new_news_item->posted_at = new DateTime();
+        // TODO tags
+        $new_news_item->save();
+        return $new_news_item->refresh()
+            ? $this->render('newsitem', ['news_item_id' => $new_news_item->id])
+            : $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
     }
 
     public function actionHome()
