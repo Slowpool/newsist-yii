@@ -74,8 +74,15 @@ class NewsController extends Controller
         $new_news_item->number_of_likes = 0;
         $new_news_item->author_id = Yii::$app->user->id;
         $new_news_item->posted_at = new DateTime();
+
         $tags = explode(',', $data['tags']);
-        // foreach()
+        $sql = 'SELECT * FROM `tags` WHERE `name` =:name';
+        foreach($tags as $tag) {
+            $tag_record = TagRecord::findBySql($sql, [':name' => $tag]);
+            if($tag_record == null) {
+                TagRecord
+            }
+        }
         $new_news_item->
 
         // TODO tags

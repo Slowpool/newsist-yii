@@ -15,6 +15,7 @@ use Yii;
  * @property int $author_id
  *
  * @property User $author
+ * @property NewsItemsTags[] $newsItemsTags
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
@@ -69,20 +70,20 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Tags]].
+     * Gets query for [[NewsItemsTags]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTags()
+    public function getNewsItemsTags()
     {
-        return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
-                    ->viaTable('NewsItemTagRecord', ['news_item' => 'id']);
+        return $this->hasMany(NewsItemTagRecord::class, ['news_item_id' => 'id']);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function beforeSave($insert) {
+    public function beforeSave($insert)
+    {
         // despite to error it works. weird.
         // despite to error it works. great.
         // i don't need to fix error to execute app.
@@ -94,7 +95,8 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function afterFind() {
+    public function afterFind()
+    {
         // i wish it works
         $this->posted_at = new \DateTime($this->posted_at);
     }
