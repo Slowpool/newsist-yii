@@ -34,6 +34,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         return [
             [['title', 'posted_at', 'number_of_likes', 'author_id'], 'required'],
             [['posted_at'], 'safe'],
+            // [['posted_at'], 'datetime'],
             [['number_of_likes', 'author_id'], 'integer'],
             [['title'], 'string', 'max' => 100],
             [['content'], 'string', 'max' => 1000],
@@ -65,5 +66,21 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     public function getAuthor()
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function beforeSave($insert) {
+        $this->posted_at = $this->posted_at->format('Y-m-d H:i:s');
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function afterFind() {
+        // i wish it works
+        $this->posted_at = new \DateTime($this->posted_at);
     }
 }

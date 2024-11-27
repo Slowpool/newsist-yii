@@ -10,6 +10,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public $authKey;
     public $accessToken;
 
+    // TODO redo identity
     private static $users = [
         '100' => [
             'id' => '100',

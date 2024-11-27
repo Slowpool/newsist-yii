@@ -13,7 +13,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use DateTime;
-// use Yii;
+use yii\helpers\Url;
 // use yii\web\Response;
 // use yii\filters\VerbFilter;
 // use app\models\LoginForm;
@@ -58,9 +58,10 @@ class NewsController extends Controller
         return $this->render('create', compact('model'));
     }
 
-    public function actionNewsitemadd() {
+    public function actionNewsitemadd()
+    {
         $data = Yii::$app->request->post('NewNewsItemModel');
-        $model->($data, 'NewNewsItemModel');
+
         $new_news_item = new NewsItemRecord();
         $new_news_item->title = $data['title'];
         $new_news_item->content = $data['content'];
@@ -69,9 +70,16 @@ class NewsController extends Controller
         $new_news_item->posted_at = new DateTime();
         // TODO tags
         $new_news_item->save();
-        return $new_news_item->refresh()
-            ? $this->render('newsitem', ['news_item_id' => $new_news_item->id])
-            : $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
+        if ($new_news_item->refresh()) {
+            return $this->redirect(Url::to(["a-look-at-a-specific-news-item/$new_news_item->id"]));
+            // return $this->render('newsitem', ['news_item_id' => $new_news_item->id]);
+        } else {
+            $model = new NewNewsItemModel();
+            $model->title = $data['title'];
+            $model->tags = $data['tags'];
+            $model->content = $data['content'];
+            return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
+        }
     }
 
     public function actionHome()

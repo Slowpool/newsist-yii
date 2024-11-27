@@ -42,7 +42,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
             'items' => [
-                ['label' => 'Main'],
+                // TODO how to make it unclickable
+                ['label' => 'Main (don\'t click it, just icon)'],
                 Yii::$app->user->isGuest
                     ? ['label' => 'Login', 'url' => ['/login']]
                     : '<li class="nav-item">'

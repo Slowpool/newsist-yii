@@ -5,7 +5,7 @@ use yii\bootstrap5\ActiveForm;
 
 ?>
 
-<?php $form = ActiveForm::begin(['options' => ['action' => 'news/newsitemadd', 'autocomplete' => 'off']]) ?>
+<?php $form = ActiveForm::begin(['action' => '/news/newsitemadd', 'options' => ['autocomplete' => 'off']]) ?>
 <?= $form->field($model, 'title')->textInput(['placeholder' => 'A loud header', 'value' => 'title-value']) ?>
 <?= $form->field($model, 'content')->textInput(['placeholder' => 'What\'s happened?', 'value' => 'content-value']) ?>
 <?= $form->field($model, 'tags')->textInput(['placeholder' => 'Tags', 'value' => 'tags-values']) // TODO 
