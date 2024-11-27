@@ -16,7 +16,7 @@ use Yii;
  *
  * @property User $author
  */
-class NewsItem extends \yii\db\ActiveRecord
+class NewsItemRecord extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

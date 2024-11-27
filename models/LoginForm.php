@@ -73,7 +73,7 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            $this->_user = NEW_domain\User::findByUsername($this->username);
+            $this->_user = domain\User::findByUsername($this->username);
         }
 
         return $this->_user;

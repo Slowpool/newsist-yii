@@ -2,7 +2,7 @@
 
 namespace tests\unit\models;
 
-use app\models\OLD_domain\User;
+use app\models\domain\User;
 
 class UserTest extends \Codeception\Test\Unit
 {

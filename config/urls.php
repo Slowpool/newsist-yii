@@ -18,7 +18,7 @@ return [
         'encodeParams' => false
     ],
     [
-        'pattern' => 'list-of-news',
+        'pattern' => 'a-list-of-news',
         'route' => 'news/home',
         'encodeParams' => false
     ],

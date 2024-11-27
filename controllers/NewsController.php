@@ -1,10 +1,18 @@
 <?php
 
-declare(strict_types=1);
+// declare(strict_types=1);
 
 namespace app\controllers;
 
 use yii\web\Controller;
+use app\models\view_models\NewNewsItemModel;
+use app\models\domain\NewsItemRecord;
+use app\models\domain\NewsItemTagRecord;
+use app\models\domain\TagRecord;
+use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+
 // use Yii;
 // use yii\web\Response;
 // use yii\filters\VerbFilter;
@@ -16,24 +24,56 @@ use yii\web\Controller;
 class NewsController extends Controller
 {
 
-    // TODO what does behavior() and actions() do?
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['create', 'home', 'newsitem'],
+                'rules' => [
+                    [
+                        'actions' => ['create', 'home', 'newsitem'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'create' => ['get', 'post'],
+                    // the patch further is for a like
+                    'newsitem' => ['get', 'patch'],
+                    'home' => ['get', 'patch'],
+                ],
+            ],
+        ];
+    }
+    // TODO what does actions() do?
 
-    // TODO mark as GET
     public function actionCreate()
     {
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return $this->render('create');
+        $model = new NewNewsItemModel();
+        if ($model->load(Yii::$app->request->post())) {
+            $new_news_item = new NewsItemRecord();
+            $news_item_id = $this->addToDbAndGetId($model);
+            // TODO redirect to just created news item
+            return $this->render('newsitem', compact('news_item_id'));
+        }
+        else {
+            return $this->render('create', compact('model'));
+        }
     }
 
-    // TODO mark as POST and add model
-    // public function actionCreate($new_news_item)
-    // {
-    //     return $this->render('create');
-    // }
+    // latch
+    function addToDbAndGetId($model) : int {
+        return 1;
+    }
 
     public function actionHome()
     {
-        // TODO add parameters
+        // TODO fill the model
         $model = $this->selectNews();
         return $this->render('home', compact('model'));
     }
@@ -42,12 +82,13 @@ class NewsController extends Controller
     // the name actionNewsItem will cause an exception. shocked. 
     public function actionNewsitem(string $news_item_id)
     {
+        // TODO passing the news_item_id is temporary
         return $this->render('newsitem', compact('news_item_id'));
     }
 
-    
-    // move somewhere to service layer
-    public static function selectNews() {
+    // latch
+    function selectNews()
+    {
         return ["news" => "news content"];
     }
 

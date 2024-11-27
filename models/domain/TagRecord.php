@@ -12,7 +12,7 @@ use Yii;
  *
  * @property NewsItemsTags[] $newsItemsTags
  */
-class Tag extends \yii\db\ActiveRecord
+class TagRecord extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -52,6 +52,6 @@ class Tag extends \yii\db\ActiveRecord
      */
     public function getNewsItemsTags()
     {
-        return $this->hasMany(NewsItemTag::class, ['tag_id' => 'id']);
+        return $this->hasMany(NewsItemTagRecord::class, ['tag_id' => 'id']);
     }
 }

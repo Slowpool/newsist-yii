@@ -14,7 +14,7 @@ use Yii;
  * @property Tag $tag
  * @property User $user
  */
-class NewsItemTag extends \yii\db\ActiveRecord
+class NewsItemTagRecord extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -33,7 +33,7 @@ class NewsItemTag extends \yii\db\ActiveRecord
             [['user_id', 'tag_id', 'number'], 'required'],
             [['user_id', 'tag_id', 'number'], 'integer'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
-            [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::class, 'targetAttribute' => ['tag_id' => 'id']],
+            [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => TagRecord::class, 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
 
@@ -56,7 +56,7 @@ class NewsItemTag extends \yii\db\ActiveRecord
      */
     public function getTag()
     {
-        return $this->hasOne(Tag::class, ['id' => 'tag_id']);
+        return $this->hasOne(TagRecord::class, ['id' => 'tag_id']);
     }
 
     /**

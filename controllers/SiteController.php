@@ -8,7 +8,6 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
@@ -61,10 +60,12 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
+        // NOT A POST, NOT A GUEST
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
+        // POST
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
