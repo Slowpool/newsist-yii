@@ -3,8 +3,7 @@
 namespace app\models\domain;
 
 use Yii;
-// use \common\DateTimeFormat;
-use \DateTimeFormat;
+use common\DateTimeFormat;
 
 /**
  * This is the model class for table "news_item".
@@ -12,7 +11,7 @@ use \DateTimeFormat;
  * @property int $id
  * @property string $title
  * @property string|null $content
- * @property string $posted_at
+ * @property DateTime $posted_at
  * @property int $number_of_likes
  * @property int $author_id
  *

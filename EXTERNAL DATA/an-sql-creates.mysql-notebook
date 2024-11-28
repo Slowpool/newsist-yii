@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` DATETIME NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL\n);\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL\n);\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 22,
-                    "column": 1
+                    "lineNumber": 12,
+                    "column": 26
                 },
                 "position": {
-                    "lineNumber": 22,
-                    "column": 1
+                    "lineNumber": 12,
+                    "column": 26
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 18,
+                "lineNumber": 3,
                 "column": 1
             },
-            "firstPositionDeltaTop": -6
+            "firstPositionDeltaTop": -13
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -157,7 +157,7 @@
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 297
+                            "length": 298
                         },
                         "contentStart": 0,
                         "state": 0
@@ -220,7 +220,7 @@
                         }
                     ]
                 },
-                "currentHeight": 45.484375,
+                "currentHeight": 28,
                 "currentSet": 1,
                 "statements": [
                     {

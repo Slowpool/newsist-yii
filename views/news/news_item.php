@@ -4,6 +4,7 @@
 
 use \yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
+use \common\DateTimeFormat;
 
 ?>
 
@@ -13,7 +14,7 @@ use yii\bootstrap5\ActiveForm;
         <h1><?= Html::encode($model->title) ?></h1>
         <p>
             <?php foreach ($model->tags as $tag): ?>
-                <span><?= Html::encode($tag) ?></span>"
+                <span><?= Html::encode($tag) ?></span>
             <?php endforeach ?>
         </p>
     </header>
@@ -26,14 +27,14 @@ use yii\bootstrap5\ActiveForm;
             The news item from <?= Html::encode($model->author_name) ?>
         </address>
         <time>
-            Posted at <?= $model->posted_at ?>
+            Posted at <?= DateTimeFormat::dateTimeToStr($model->posted_at) ?>
         </time>
         <p>
-            Number of likes
-            <?= ActiveForm::begin(['action' => '/like-news-item', 'method' => 'patch']) ?>
-            <?= Html::input('button', 'like') ?>
+            <?php ActiveForm::begin(['action' => '/like-news-item', 'method' => 'patch']) ?>
+            <?= Html::label('Number of likes', 'news-item-like-button') ?>
+            <?= Html::input('button', 'like', 'Like', ['id' => 'news-item-like-button']) ?>
             <?= $model->number_of_likes ?>
-            <?= ActiveForm::end() ?>
+            <?php ActiveForm::end() ?>
         </p>
     </footer>
 </article>
