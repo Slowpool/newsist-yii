@@ -74,31 +74,44 @@ class NewsController extends Controller
         $new_news_item->number_of_likes = 0;
         $new_news_item->author_id = Yii::$app->user->id;
         $new_news_item->posted_at = new DateTime();
-
-        $tags = explode(',', $data['tags']);
-        $sql = 'SELECT * FROM `tags` WHERE `name` =:name';
-        foreach($tags as $tag) {
-            $tag_record = TagRecord::findBySql($sql, [':name' => $tag]);
-            if($tag_record == null) {
-                TagRecord
-            }
-        }
-        $new_news_item->
-
-        // TODO tags
         // TODO probably refresh is redundant here
-        if ($new_news_item->save() && $new_news_item->refresh()) {
-            return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
-            // return $this->render('newsitem', ['news_item_id' => $new_news_item->id]);
-        } else {
+        if (!$new_news_item->save() || !$new_news_item->refresh()) {
             $model = new NewNewsItemModel();
             $model->title = $data['title'];
-            $model->tags = $data['tags'];
             $model->content = $data['content'];
             return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
         }
-    }
 
+        $tags = explode(',', $data['tags']);
+        $sql = 'SELECT * FROM `tag` WHERE `name` =:name';
+        $tag_ids = [];
+        foreach($tags as $tag) {
+            $tag_record = TagRecord::findBySql($sql, [':name' => $tag])->one();
+            // create new tag if does not exist
+            if($tag_record == null) {
+                $tag_record = new TagRecord();
+                $tag_record->name = $tag;
+                $tag_record->save();
+                $tag_record->refresh();
+            }
+            // ignore duplicates
+            if(!in_array($tag_record->id, $tag_ids)) {
+                $tag_ids[] = $tag_record->id;
+            }
+        }
+
+        $number = 1;
+        // bind tags to the news_item
+        foreach($tag_ids as $tag_id) {
+            $news_item_tag_record = new NewsItemTagRecord();
+            $news_item_tag_record->tag_id = $tag_id;
+            $news_item_tag_record->news_item_id = $new_news_item->id;
+            $news_item_tag_record->number = $number++;
+            $news_item_tag_record->save();
+        }
+        return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
+    }
+    
     // GET
     public function actionHome()
     {

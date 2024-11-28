@@ -7,12 +7,12 @@ use Yii;
 /**
  * This is the model class for table "news_items_tags".
  *
- * @property int $user_id
+ * @property int $news_item_id
  * @property int $tag_id
  * @property int $number
  *
- * @property Tag $tag
- * @property User $user
+ * @property TagRecord $tag
+ * @property NewsItemRecord $news_item
  */
 class NewsItemTagRecord extends \yii\db\ActiveRecord
 {
@@ -30,9 +30,9 @@ class NewsItemTagRecord extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'tag_id', 'number'], 'required'],
-            [['user_id', 'tag_id', 'number'], 'integer'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [['news_item_id', 'tag_id', 'number'], 'required'],
+            [['news_item_id', 'tag_id', 'number'], 'integer'],
+            [['news_item_id'], 'exist', 'skipOnError' => true, 'targetClass' => NewsItemRecord::class, 'targetAttribute' => ['news_item_id' => 'id']],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => TagRecord::class, 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
@@ -43,7 +43,7 @@ class NewsItemTagRecord extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'user_id' => 'User ID',
+            'news_item_id' => 'News Item ID',
             'tag_id' => 'Tag ID',
             'number' => 'Number',
         ];
@@ -60,12 +60,12 @@ class NewsItemTagRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[User]].
+     * Gets query for [[NewsItemRecord]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
+    public function getNewsItem()
     {
-        return $this->hasOne(User::class, ['id' => 'user_id']);
+        return $this->hasOne(NewsItemRecord::class, ['id' => 'news_item_id']);
     }
 }

@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` DATETIME NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nCREATE TABLE `news_items_tags`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL\n);\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) NOT NULL,\n    `password` CHAR(64) NOT NULL);\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` DATETIME NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL\n);\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 20,
-                    "column": 39
+                    "lineNumber": 22,
+                    "column": 1
                 },
                 "position": {
-                    "lineNumber": 20,
-                    "column": 39
+                    "lineNumber": 22,
+                    "column": 1
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 1,
+                "lineNumber": 18,
                 "column": 1
             },
-            "firstPositionDeltaTop": -1
+            "firstPositionDeltaTop": -6
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -209,19 +209,25 @@
                         {
                             "type": 4,
                             "index": 0,
-                            "resultId": "5f228ea2-1694-499b-a020-9d52a41ce1dc",
-                            "content": "OK, 0 records retrieved in 33.027ms"
+                            "resultId": "d78df2c3-5eaf-45f9-baa3-6f7fd039fec3",
+                            "content": "OK, 0 records retrieved in 0.973ms"
+                        },
+                        {
+                            "type": 4,
+                            "index": 1,
+                            "resultId": "07263d3a-6856-442a-d745-17e33b168119",
+                            "content": "OK, 0 records retrieved in 36.595ms"
                         }
                     ]
                 },
-                "currentHeight": 28,
+                "currentHeight": 45.484375,
                 "currentSet": 1,
                 "statements": [
                     {
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 222
+                            "length": 237
                         },
                         "contentStart": 0,
                         "state": 0
