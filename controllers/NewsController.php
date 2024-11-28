@@ -45,9 +45,9 @@ class NewsController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'create' => ['get', 'post'],
-                    // the patch further is for a like
-                    'newsitem' => ['get', 'patch'],
-                    'home' => ['get', 'patch'],
+                    'news-item' => ['get'],
+                    'home' => ['get'],
+                    'like-news-item' => ['post']
                 ],
             ],
         ];
@@ -154,13 +154,13 @@ class NewsController extends Controller
                 ]
             );
         }
-        $model = new NewsItemModel();
-        $model->id = $news_item_record->id;
-        $model->title = $news_item_record->title;
-        $model->posted_at = $news_item_record->posted_at;
-        $model->content = $news_item_record->content;
-        $model->number_of_likes = $news_item_record->number_of_likes;
-        $model->author_name = $news_item_record->author->username;
+        $news_item = new NewsItemModel();
+        $news_item->id = $news_item_record->id;
+        $news_item->title = $news_item_record->title;
+        $news_item->posted_at = $news_item_record->posted_at;
+        $news_item->content = $news_item_record->content;
+        $news_item->number_of_likes = $news_item_record->number_of_likes;
+        $news_item->author_name = $news_item_record->author->username;
 
         $news_items_tags = $news_item_record->newsItemsTags;
         usort($news_items_tags, function ($news_item_tag1, $news_item_tag2) {
@@ -172,9 +172,23 @@ class NewsController extends Controller
             $tag = TagRecord::findOne($tag_id);
             $tags[] = $tag->name;
         }
-        $model->tags = $tags;
+        $news_item->tags = $tags;
 
-        return $this->render('news_item', compact('model'));
+        return $this->render('news_item', compact('news_item'));
+    }
+
+    // POST                    but it could have been PATCH
+    public function actionLikeNewsItem() {
+        // looks like it mustn't be so
+        $news_item_id = $_POST['newsItemId'];
+        if (!isset($news_item_id))
+            throw new BadRequestHttpException('Missing parameter: newsItemId', 400);
+        
+        $news_item_record = NewsItemRecord::findOne($news_item_id);
+        // $
+
+        // change to number of likes?
+        return $this->content();
     }
 
     // latch

@@ -30,11 +30,10 @@ use \common\DateTimeFormat;
             Posted at <?= DateTimeFormat::dateTimeToStr($news_item->posted_at) ?>
         </time>
         <p>
-            <?php Html::beginForm('/like-news-item', 'patch') ?>
-            <!-- <?= Html::label('Number of likes', 'news-item-like-button') ?> -->
-             <? Html::input('hidden', 'newsItemId', $news_item->) ?>
+            <?= Html::beginForm('/like-news-item') ?>
+            <?= Html::input('hidden', 'newsItemId', $news_item->id) ?>
             <?= Html::submitButton("Like! $news_item->number_of_likes", ['id' => 'news-item-like-button']) ?>
-            <?php Html::endForm() ?>
+            <?= Html::endForm() ?>
         </p>
     </footer>
 </article>

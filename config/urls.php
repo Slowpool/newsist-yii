@@ -31,5 +31,9 @@ return [
         'pattern' => 'a-look-at-a-specific-news-item/<news_item_id:\d+>',
         'route' => 'news/news-item',
         'encodeParams' => false
+    ],
+    [
+        'pattern' => 'like-news-item',
+        'route' => 'news/like-news-item',
     ]
 ];
