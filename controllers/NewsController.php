@@ -76,7 +76,7 @@ class NewsController extends Controller
         $new_news_item->content = $data['content'];
         $new_news_item->number_of_likes = 0;
         $new_news_item->author_id = Yii::$app->user->id;
-        $new_news_item->posted_at = Yii::$app->localtime();
+        $new_news_item->posted_at = new DateTime();
 
         $model = new NewNewsItemModel();
         $model->title = $data['title'];
@@ -139,13 +139,13 @@ class NewsController extends Controller
     {
         // i hope it has an sql-injection protection
 
-        $news_item = NewsItemRecord::findOne($news_item_id);
+        $news_item_record = NewsItemRecord::findOne($news_item_id);
         // try {
         // }
         // catch (\Exception) {
         //     return 'you got exception which wasn\'t expected at all';
         // }
-        if ($news_item == null) {
+        if ($news_item_record == null) {
             return $this->render(
                 '//site/error',
                 [
@@ -155,14 +155,14 @@ class NewsController extends Controller
             );
         }
         $model = new NewsItemModel();
-        $model->id = $news_item->id;
-        $model->title = $news_item->title;
-        $model->posted_at = $news_item->posted_at;
-        $model->content = $news_item->content;
-        $model->number_of_likes = $news_item->number_of_likes;
-        $model->author_name = $news_item->author->username;
+        $model->id = $news_item_record->id;
+        $model->title = $news_item_record->title;
+        $model->posted_at = $news_item_record->posted_at;
+        $model->content = $news_item_record->content;
+        $model->number_of_likes = $news_item_record->number_of_likes;
+        $model->author_name = $news_item_record->author->username;
 
-        $news_items_tags = $news_item->newsItemsTags;
+        $news_items_tags = $news_item_record->newsItemsTags;
         usort($news_items_tags, function ($news_item_tag1, $news_item_tag2) {
             return $news_item_tag1->number - $news_item_tag2->number;
         });

@@ -48,9 +48,6 @@ $config = [
             'enablePrettyUrl' => true,
             // 'showScriptName' => false,
             'rules' => require 'urls.php',
-        ],
-        'formatter' => [
-            'timeZone' => 'GMT+3'
         ]
     ],
     'params' => $params,
