@@ -2,6 +2,10 @@
 
 namespace app\models\domain;
 
+/**
+ * 
+ * @property UserNewsItemLikeRecord $usersLiked
+ */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     public $id;
@@ -27,7 +31,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'accessToken' => '101-token',
         ],
     ];
-
 
     /**
      * {@inheritdoc}
@@ -101,5 +104,15 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->password === $password;
+    }
+
+    /**
+     * Gets query for [[UserNewsItemLikeRecord]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserNewsItemLikes()
+    {
+        return $this->hasMany(UserNewsItemLikeRecord::class, ['news_item_id' => 'id']);
     }
 }

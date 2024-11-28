@@ -16,7 +16,8 @@ use common\DateTimeFormat;
  * @property int $author_id
  *
  * @property User $author
- * @property NewsItemsTags[] $newsItemsTags
+ * @property NewsItemTagRecord[] $newsItemTags
+ * @property UserNewsItemLikeRecord $usersLiked
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
@@ -78,6 +79,16 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     public function getNewsItemsTags()
     {
         return $this->hasMany(NewsItemTagRecord::class, ['news_item_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[UserNewsItemLikeRecord]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserNewsItemLikes()
+    {
+        return $this->hasMany(UserNewsItemLikeRecord::class, ['news_item_id' => 'id']);
     }
 
     /**

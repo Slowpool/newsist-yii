@@ -4,25 +4,29 @@
 
 namespace app\controllers;
 
-use yii\web\Controller;
-use yii\web\BadRequestHttpException;
-use app\models\view_models\NewNewsItemModel;
-use app\models\view_models\NewsItemModel;
-use app\models\domain\NewsItemRecord;
-use app\models\domain\NewsItemTagRecord;
-use app\models\domain\TagRecord;
-use common\DateTimeFormat;
 use Yii;
+use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\web\Controller;
+use yii\web\BadRequestHttpException;
+
+use app\models\view_models\NewNewsItemModel;
+use app\models\view_models\NewsItemModel;
+
+use app\models\domain\NewsItemRecord;
+use app\models\domain\TagRecord;
+use app\models\domain\NewsItemTagRecord;
+use app\models\domain\UserNewsItemLikeRecord;
+
 use DateTime;
-use yii\helpers\Url;
+use common\DateTimeFormat;
+use yii\web\HttpException;
+use yii\web\ServerErrorHttpException;
+
 // use yii\web\Response;
 // use yii\filters\VerbFilter;
 // use app\models\LoginForm;
-// use app\models\ContactForm;
-
-// namespace 
 
 class NewsController extends Controller
 {
@@ -178,16 +182,44 @@ class NewsController extends Controller
     }
 
     // POST                    but it could have been PATCH
-    public function actionLikeNewsItem() {
+    public function actionLikeNewsItem()
+    {
         // looks like it mustn't be so
         $news_item_id = $_POST['newsItemId'];
         if (!isset($news_item_id))
             throw new BadRequestHttpException('Missing parameter: newsItemId', 400);
-        
         $news_item_record = NewsItemRecord::findOne($news_item_id);
-        // $
+        if ($news_item_record == null) {
+            throw new BadRequestHttpException("News item with id $news_item_id was not found", 400);
+        }
 
-        // change to number of likes?
+        $user_id = Yii::$app->user->id;
+        // TODO can i use findOne()->where() instead of find()->where()->one() here?
+        $news_item_like_record = UserNewsItemLikeRecord::find()
+            ->where(['news_item_id' => $news_item_id, 'user_id' => $user_id])->one();
+        $is_like_up = $news_item_like_record == null;
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($is_like_up) {
+                // create the like entry
+                $news_item_like_record = new UserNewsItemLikeRecord();
+                $news_item_like_record->user_id = $user_id;
+                $news_item_like_record->news_item_id = $news_item_id;
+                $news_item_like_record->save();
+            } else {
+                // delete the like entry
+                $news_item_like_record->delete();
+            }
+
+            $transaction->commit();
+        } catch (\Exception $exception) {
+            $transaction->rollBack();
+            // not sure it's working
+            throw new HttpException(null, null, null, $exception);
+        }
+
+        // TODO return number of likes
         return $this->content();
     }
 
