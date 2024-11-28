@@ -3,7 +3,8 @@
 namespace app\models\domain;
 
 use Yii;
-use Common\DateTimeFormat;
+// use \common\DateTimeFormat;
+use \DateTimeFormat;
 
 /**
  * This is the model class for table "news_item".
