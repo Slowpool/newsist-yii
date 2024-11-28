@@ -6,9 +6,11 @@ namespace app\controllers;
 
 use yii\web\Controller;
 use app\models\view_models\NewNewsItemModel;
+use app\models\view_models\NewsItemModel;
 use app\models\domain\NewsItemRecord;
 use app\models\domain\NewsItemTagRecord;
 use app\models\domain\TagRecord;
+use Common\DateTimeFormat;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -49,10 +51,8 @@ class NewsController extends Controller
             ],
         ];
     }
-
     // public function actions() {
     //     return [
-
     //     ];
     // }
 
@@ -111,7 +111,7 @@ class NewsController extends Controller
         }
         return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
     }
-    
+
     // GET
     public function actionHome()
     {
@@ -124,14 +124,13 @@ class NewsController extends Controller
     public function actionNewsItem(string $news_item_id)
     {
         // i hope it has an sql-injection protection
-        $model = NewsItemRecord::findOne($news_item_id);
+        $news_item = NewsItemRecord::findOne($news_item_id);
         // try {
         // }
         // catch (\Exception) {
         //     return 'you got exception which wasn\'t expected at all';
         // }
-
-        if ($model == null) {
+        if ($news_item == null) {
             return $this->render(
                 'SiteController/error',
                 [
@@ -140,6 +139,25 @@ class NewsController extends Controller
                 ]
             );
         }
+        $model = new NewsItemModel();
+        $model->id = $news_item->id;
+        $model->title = $news_item->title;
+        $model->posted_at = DateTimeFormat::strToDateTime($news_item->posted_at);
+        $model->content = $news_item->content;
+        $model->number_of_likes = $news_item->number_of_likes;
+        $model->author_name = $news_item->author->username;
+
+        $news_items_tags = $news_item->newsItemsTags;
+        usort($news_items_tags, function($news_item_tag1, $news_item_tag2) {
+            return $news_item_tag1->number - $news_item_tag2->number;
+        });
+        $tags = array();
+        foreach($news_items_tags as $news_item_tag) {
+            $tag_id = $news_item_tag->tag_id;
+            $tag = TagRecord::findOne($tag_id);
+            $tags[] = $tag->name;
+        }
+        $model->tags = $tags;
 
         return $this->render('news_item', compact('model'));
     }

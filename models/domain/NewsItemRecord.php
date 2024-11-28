@@ -3,6 +3,7 @@
 namespace app\models\domain;
 
 use Yii;
+use Common\DateTimeFormat;
 
 /**
  * This is the model class for table "news_item".
@@ -87,7 +88,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         // despite to error it works. weird.
         // despite to error it works. great.
         // i don't need to fix error to execute app.
-        $this->posted_at = $this->posted_at->format('Y-m-d H:i:s');
+        $this->posted_at = DateTimeFormat::dateTimeToStr($this->posted_at);
         $this->title = strtoupper($this->title);
         return parent::beforeSave($insert);
     }
@@ -98,6 +99,6 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     public function afterFind()
     {
         // i wish it works
-        $this->posted_at = new \DateTime($this->posted_at);
+        $this->posted_at = DateTimeFormat::strToDateTime($this->posted_at);
     }
 }
