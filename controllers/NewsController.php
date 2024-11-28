@@ -206,21 +206,30 @@ class NewsController extends Controller
                 $news_item_like_record = new UserNewsItemLikeRecord();
                 $news_item_like_record->user_id = $user_id;
                 $news_item_like_record->news_item_id = $news_item_id;
-                $news_item_like_record->save();
+                // GOTCHA
+                $like_successfully_created = $news_item_like_record->save();
             } else {
                 // delete the like entry
+                // TODO should i handle exception here???
                 $news_item_like_record->delete();
             }
+            // plus or minus like
+            $news_item_record->number_of_likes += ($is_like_up ? 1 : -1);
+            $number_of_likes_successfully_changed = $news_item_record->save();
+
+            if(!$like_successfully_created || !$number_of_likes_successfully_changed)
+                throw new \Exception();
 
             $transaction->commit();
         } catch (\Exception $exception) {
             $transaction->rollBack();
             // not sure it's working
-            throw new HttpException(null, null, null, $exception);
+            throw new HttpException('something went wrong');
         }
 
         // TODO return number of likes
-        return $this->content();
+        Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
+        return (string)$news_item_record->number_of_likes;
     }
 
     // latch
