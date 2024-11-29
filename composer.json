@@ -79,7 +79,8 @@
     ],
     "autoload": {
         "files": [
-            "common\\DateTimeFormat.php"
+            "common\\DateTimeFormat.php",
+            "views\\news\\partial\\like_button.php"
         ]
     }
 }

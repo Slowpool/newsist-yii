@@ -184,7 +184,8 @@ class NewsController extends Controller
     // POST                    but it could have been PATCH
     public function actionLikeNewsItem()
     {
-        // looks like it mustn't be so
+        // SOOOOOOOOO SLOW METHOD
+        // validation. it shouldn't be here
         $news_item_id = $_POST['newsItemId'];
         if (!isset($news_item_id))
             throw new BadRequestHttpException('Missing parameter: newsItemId', 400);
@@ -194,9 +195,7 @@ class NewsController extends Controller
         }
 
         $user_id = Yii::$app->user->id;
-        // TODO can i use findOne()->where() instead of find()->where()->one() here?
-        $news_item_like_record = UserNewsItemLikeRecord::find()
-            ->where(['news_item_id' => $news_item_id, 'user_id' => $user_id])->one();
+        $news_item_like_record = UserNewsItemLikeRecord::findOne(['news_item_id' => $news_item_id, 'user_id' => $user_id]);
         $is_like_up = $news_item_like_record == null;
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -207,29 +206,29 @@ class NewsController extends Controller
                 $news_item_like_record->user_id = $user_id;
                 $news_item_like_record->news_item_id = $news_item_id;
                 // GOTCHA
-                $like_successfully_created = $news_item_like_record->save();
+                $like_entry_handled = $news_item_like_record->save();
             } else {
                 // delete the like entry
                 // TODO should i handle exception here???
-                $news_item_like_record->delete();
+                $like_entry_handled = $news_item_like_record->delete();
             }
             // plus or minus like
             $news_item_record->number_of_likes += ($is_like_up ? 1 : -1);
             $number_of_likes_successfully_changed = $news_item_record->save();
 
-            if(!$like_successfully_created || !$number_of_likes_successfully_changed)
-                throw new \Exception();
+            if(!$like_entry_handled || !$number_of_likes_successfully_changed)
+                throw new HttpException('failed to update like');
 
             $transaction->commit();
         } catch (\Exception $exception) {
             $transaction->rollBack();
-            // not sure it's working
-            throw new HttpException('something went wrong');
+            throw $exception;
         }
 
-        // TODO return number of likes
-        Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
-        return (string)$news_item_record->number_of_likes;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
+        Yii::$app->response->headers->add('Content-Type', 'text/plain');
+        // "Like!" may not be here
+        return "Like! $news_item_record->number_of_likes";
     }
 
     // latch
