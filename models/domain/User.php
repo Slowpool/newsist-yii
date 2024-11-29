@@ -111,8 +111,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserNewsItemLikes()
+    public function getNewsItemRecords()
     {
-        return $this->hasMany(UserNewsItemLikeRecord::class, ['news_item_id' => 'id']);
+        // everything wrong here!
+        return $this->hasMany(NewsItemRecord::class, ['news_item_id' => 'id']);
     }
 }

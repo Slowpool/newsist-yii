@@ -136,16 +136,18 @@ class NewsController extends Controller
         // php allows to assign another type to the same variable
         $tags = explode(',', $tags);
 
-        
-
-        $news_list = $this->selectNews();
+        $news_list = $this->selectRelevantNews($tags, $order_by, $page_number);
         return $this->render('home', compact('news_list'));
     }
 
-    // latch
-    function selectNews()
+    function selectNews($tags, $order_by, $page_number)
     {
-
+        $tags = array_unique($tags);
+        // TODO sql injection protection???
+        $tag_ids = TagRecord::find()->asArray()->where(['name' => $tags])->all();
+        
+        $news_list = NewsItemRecord::find();
+        $news_list = $news_list->where();
         // $news_list = 
         return $news_list;
     }

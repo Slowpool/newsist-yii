@@ -17,7 +17,6 @@ $this->title = 'List of news';
 
     <search id="search-options">
         <h4>Search options</h4>
-
     </search>
     <section id="search-results">
         <h4>Results</h4>
@@ -40,6 +39,7 @@ $this->title = 'List of news';
                     <?php endforeach ?>
                 </p>
                 <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>
+                <?php Html::date('d/m/y', $news_item->posted_at ) ?>
             </article>
         <?php endforeach ?>
     </section>
