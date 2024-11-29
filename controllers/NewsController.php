@@ -136,18 +136,34 @@ class NewsController extends Controller
     {
         // php allows to assign another type to the same variable
         $tags = explode(',', $tags);
+        $ascending = $order_by === 'new first' ? true : ($order_by === 'new first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
 
-        $news_list = $this->selectRelevantNews($tags, $order_by, $page_number);
+        $news_list = $this->selectRelevantNews($tags, $ascending, $page_number);
         return $this->render('home', compact('news_list'));
     }
 
-    function selectNews($tags, $order_by, $page_number)
+    function selectNews($tags, $ascending, $page_number)
     {
         $tags = array_unique($tags);
         // TODO sql injection protection???
-        $tag_ids = TagRecord::find()->asArray()->where(['name' => $tags])->all();
+        $tag_ids = TagRecord::find()
+                            ->asArray()
+                            ->where(['name' => $tags])
+                            ->all();
 
-        $news_list = NewsItemRecord::find();
+
+        
+        $news_list = NewsItemRecord::find()
+                                    ->with('userWhoLiked')
+                                    ->with('newsItemsTags')
+                                    ->where(['tag_id' => $tag_ids])
+                                    ->orderBy(['posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+                                    // TODO set PAGE_SIZE = 10
+                                    ->limit(10)
+                                    // TODO set PAGE_SIZE = 10
+                                    ->offset(($page_number - 1) * 10)
+                                    // TODO finish this stuff
+                                    ->all();
         // $news_list = $news_list->where();
         return $news_list;
     }
@@ -249,15 +265,15 @@ class NewsController extends Controller
     // TODO delete
     function actionTest()
     {
-        $first = false;
-        if ($first) {
-            $news_item = NewsItemRecord::findOne('27');
-            $users_who_liked = $news_item->usersWhoLiked;
-            return var_dump($users_who_liked);
-        } else {
-            $user = User::findOne('100');
-            $liked_news_items = $user->likedNewsItems;
-            return var_dump($liked_news_items);
-        }
+        // $first = false;
+        // if ($first) {
+        //     $news_item = NewsItemRecord::findOne('27');
+        //     $users_who_liked = $news_item->usersWhoLiked;
+        //     return $users_who_liked;
+        // } else {
+        //     $user = User::findOne('100');
+        //     $liked_news_items = $user->likedNewsItems[0];
+        //     return $liked_news_items->id;
+        // }
     }
 }
