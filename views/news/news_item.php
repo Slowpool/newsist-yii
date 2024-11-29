@@ -31,7 +31,7 @@ use \views\news\partial\LikeButton;
             Posted at <?= DateTimeFormat::dateTimeToStr($news_item->posted_at) ?>
         </time>
         <p>
-            <?= LikeButton::Generate($news_item->id, $news_item->number_of_likes) ?>
+            <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>
         </p>
     </footer>
 </article>

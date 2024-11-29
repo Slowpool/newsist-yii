@@ -12,7 +12,7 @@ class LikeButton
      * @param int $news_item_id
      * @param int $number_of_likes
      */
-    public static function Generate($news_item_id, $number_of_likes)
+    public static function generate($news_item_id, $number_of_likes)
     {
         echo Html::beginForm('/', 'post', ['class' => 'news-item-like-form']);
         echo Html::input('hidden', 'newsItemId', $news_item_id);

@@ -131,11 +131,23 @@ class NewsController extends Controller
     }
 
     // GET
-    public function actionHome()
+    public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
+    {        
+        // php allows to assign another type to the same variable
+        $tags = explode(',', $tags);
+
+        
+
+        $news_list = $this->selectNews();
+        return $this->render('home', compact('news_list'));
+    }
+
+    // latch
+    function selectNews()
     {
-        // TODO fill the model
-        $model = $this->selectNews();
-        return $this->render('home', compact('model'));
+
+        // $news_list = 
+        return $news_list;
     }
 
     // GET
@@ -216,7 +228,7 @@ class NewsController extends Controller
             $news_item_record->number_of_likes += ($is_like_up ? 1 : -1);
             $number_of_likes_successfully_changed = $news_item_record->save();
 
-            if(!$like_entry_handled || !$number_of_likes_successfully_changed)
+            if ($like_entry_handled !== false || $number_of_likes_successfully_changed !== false)
                 throw new HttpException('failed to update like');
 
             $transaction->commit();
@@ -231,11 +243,11 @@ class NewsController extends Controller
         return "Like! $news_item_record->number_of_likes";
     }
 
-    // latch
-    function selectNews()
-    {
-        return ["news" => "news content"];
-    }
-
     // TODO handle redirecting to http://localhost/ after logout
+    // TODO delete
+    function actionTest() {
+        // $records = TagRecord::find()->all();
+        echo "false == 0 is: ", false == 0;        
+        return 'nice';
+    }
 }

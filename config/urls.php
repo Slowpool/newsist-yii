@@ -18,9 +18,9 @@ return [
         'encodeParams' => false
     ],
     [
-        'pattern' => 'a-list-of-news',
+        'pattern' => 'a-list-of-news/<tags><order_by><page_number:\d+>',
         'route' => 'news/home',
-        'encodeParams' => false
+        'encodeParams' => true
     ],
     [
         'pattern' => 'fill-in-a-new-news-item',
@@ -35,5 +35,7 @@ return [
     [
         'pattern' => 'like-news-item',
         'route' => 'news/like-news-item',
-    ]
+    ],
+    // TODO delete
+    'test' => 'news/test'
 ];

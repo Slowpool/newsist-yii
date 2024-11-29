@@ -1,15 +1,48 @@
+<?php
 
-<?php 
+/** @var yii\web\View $this */
+/** @var app\models\view_models\NewsItemModel[] $news */
 
 use yii\bootstrap5\Html;
 use \views\news\partial\LikeButton;
+use app\models\view_models\NewsItemModel;
+use yii\bootstrap5\ActiveForm;
 
-$this->title = 'Main';
+
+$this->title = 'List of news';
 ?>
 
 <section class="site-index">
     <?= Html::a('SHARE THE NEWS ITEM', '/fill-in-a-new-news-item') ?>
-    <?php LikeButton::Generate(1937, 1937) ?>
+
+    <search id="search-options">
+        <h4>Search options</h4>
+
+    </search>
+    <section id="search-results">
+        <h4>Results</h4>
+        <?php foreach ($news as $news_item): ?>
+            <article>
+                <h3>
+                    <?= Html::encode($news_item->title) ?>
+                </h3>
+                <p>
+                    <?= Html::encode(substr($news_item->content, 0, 100)) ?>
+                </p>
+                <address>
+                    Author: <?= Html::encode($news_item->author_name) ?>
+                </address>
+                <p>
+                    <?php foreach ($news_item->tags as $tag): ?>
+                        <span>
+                            <?= Html::encode($tag) ?>
+                        </span>
+                    <?php endforeach ?>
+                </p>
+                <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>
+            </article>
+        <?php endforeach ?>
+    </section>
 </section>
 
 
