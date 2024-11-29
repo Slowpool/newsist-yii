@@ -2,18 +2,35 @@
 
 namespace app\models\domain;
 
+use app\models\domain\UserNewsItemLikeRecord;
+
 /**
  * 
  * @property UserNewsItemLikeRecord $usersLiked
  */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    public $id;
+    // public $id;
     public $username;
     public $password;
     public $authKey;
     public $accessToken;
 
+    public static function tableName()
+    {
+        return 'user';
+    }
+
+    public function rules()
+    {
+        return [];
+    }
+
+    public function attributeLabels()
+    {
+        return [];
+    }
+    
     // TODO redo identity
     private static $users = [
         '100' => [
@@ -60,7 +77,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username)// : User
+    public static function findByUsername($username) // : User
     {
         foreach (self::$users as $user) {
             if (strcasecmp($user['username'], $username) === 0) {
@@ -107,13 +124,13 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Gets query for [[UserNewsItemLikeRecord]].
+     * Gets query for [[NewsItem]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getNewsItemRecords()
+    public function getLikedNewsItems()
     {
-        // everything wrong here!
-        return $this->hasMany(NewsItemRecord::class, ['news_item_id' => 'id']);
+        return $this->hasMany(NewsItemRecord::class, ['id' => 'news_item_id'])
+            ->viaTable('user_news_item_like', ['user_id' => 'id']);
     }
 }

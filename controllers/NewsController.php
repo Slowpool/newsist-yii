@@ -18,6 +18,7 @@ use app\models\domain\NewsItemRecord;
 use app\models\domain\TagRecord;
 use app\models\domain\NewsItemTagRecord;
 use app\models\domain\UserNewsItemLikeRecord;
+use app\models\domain\User;
 
 use DateTime;
 use common\DateTimeFormat;
@@ -132,7 +133,7 @@ class NewsController extends Controller
 
     // GET
     public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
-    {        
+    {
         // php allows to assign another type to the same variable
         $tags = explode(',', $tags);
 
@@ -145,10 +146,9 @@ class NewsController extends Controller
         $tags = array_unique($tags);
         // TODO sql injection protection???
         $tag_ids = TagRecord::find()->asArray()->where(['name' => $tags])->all();
-        
+
         $news_list = NewsItemRecord::find();
-        $news_list = $news_list->where();
-        // $news_list = 
+        // $news_list = $news_list->where();
         return $news_list;
     }
 
@@ -247,9 +247,17 @@ class NewsController extends Controller
 
     // TODO handle redirecting to http://localhost/ after logout
     // TODO delete
-    function actionTest() {
-        // $records = TagRecord::find()->all();
-        echo "false == 0 is: ", false == 0;        
-        return 'nice';
+    function actionTest()
+    {
+        $first = false;
+        if ($first) {
+            $news_item = NewsItemRecord::findOne('27');
+            $users_who_liked = $news_item->usersWhoLiked;
+            return var_dump($users_who_liked);
+        } else {
+            $user = User::findOne('100');
+            $liked_news_items = $user->likedNewsItems;
+            return var_dump($liked_news_items);
+        }
     }
 }

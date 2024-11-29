@@ -17,7 +17,7 @@ use common\DateTimeFormat;
  *
  * @property User $author
  * @property NewsItemTagRecord[] $newsItemTags
- * @property UserNewsItemLikeRecord $usersLiked
+ * @property User[] $users
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
@@ -42,7 +42,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
             [['title'], 'string', 'max' => 100],
             [['content'], 'string', 'max' => 1000],
             [['title'], 'unique'],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['author_id' => 'id']],
+            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['author_id' => 'id']]
         ];
     }
 
@@ -82,13 +82,14 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[UserNewsItemLikeRecord]].
+     * Gets query for [[User]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserNewsItemLikes()
+    public function getUsersWhoLiked()
     {
-        return $this->hasMany(UserNewsItemLikeRecord::class, ['news_item_id' => 'id']);
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+                    ->viaTable('user_news_item_like', ['news_item_id' => 'id']);
     }
 
     /**
