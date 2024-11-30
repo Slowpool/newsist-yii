@@ -23,6 +23,7 @@ use app\models\domain\User;
 use DateTime;
 use common\DateTimeFormat;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 // use yii\web\Response;
@@ -132,94 +133,27 @@ class NewsController extends Controller
     }
 
     // GET
-    public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
-    {
-        // php allows to assign another type value to the same variable
-        $tags = $tags === '' ? [] : explode(',', $tags);
-        $ascending = $order_by === 'new first' ? true : ($order_by === 'old first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
-
-        $news = $this->selectRelevantNews($tags, $ascending, $page_number);
-        return $this->render('home', compact('news'));
-    }
-
-    function selectRelevantNews($tags, $ascending, $page_number)
-    {
-        $tags = array_unique($tags);
-        $page_size = Yii::getAlias('@page_size');
-        $query = NewsItemRecord::
-            find()
-            ->alias('ni')
-            ->asArray()
-            ->with('tags')
-            ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
-            ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
-            ->select(['ni.id',
-                      'ni.title',
-                      'ni.content',
-                      'ni.posted_at',
-                      'ni.number_of_likes']);
-                      // ofc i could select tag names here, but um... only in concated string like [tag1,tag2] and then explode it again
-        if (!empty($tags)) {
-            $query = $query->where(['t.name' => $tags]);
-        }
-        $news_array = $query->groupBy('ni.id')
-                            ->having('COUNT(t.id) >= ' . sizeof($tags))
-                            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
-                            ->offset(($page_number - 1) * $page_size)
-                            ->limit($page_size)
-                            ->all();
-        $news = array();
-        foreach($news_array as $news_item) {
-            $news[] = $this->newsItemArrayToModel($news_item);
-        }
-        return $news;
-    }
-
-    /**
-     * @param NewsItemModel $news_item
-     */
-    function newsItemArrayToModel($news_item) {
-        $news_item_model = new NewsItemModel();
-        $news_item_model->id = $news_item['id'];
-        $news_item_model->title = $news_item['title'];
-        $news_item_model->tags = array_column($news_item['tags'], 'name');
-        $news_item_model->content = $news_item['content'];
-        $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
-        $news_item_model->number_of_likes = $news_item['number_of_likes'];
-        return $news_item_model;
-    }
-
-    // GET
     public function actionNewsItem(string $news_item_id)
     {
         // i hope it has an sql-injection protection
 
-        $news_item_record = NewsItemRecord::findOne($news_item_id);
+        $news_item_record = NewsItemRecord::find($news_item_id)
+            ->asArray() // c# AsNoTracking() alternative afaik
+            ->with('author')
+            ->one();
         // try {
         // }
         // catch (\Exception) {
         //     return 'you got exception which wasn\'t expected at all';
         // }
-        if ($news_item_record == null) {
-            return $this->render(
-                '//site/error',
-                [
-                    'name' => 'Not found',
-                    'message' => "A news item with id $news_item_id does not exist."
-                ]
-            );
-        }
-        $news_item = new NewsItemModel();
-        $news_item->id = $news_item_record->id;
-        $news_item->title = $news_item_record->title;
-        $news_item->posted_at = $news_item_record->posted_at;
-        $news_item->content = $news_item_record->content;
-        $news_item->number_of_likes = $news_item_record->number_of_likes;
-        $news_item->author_name = $news_item_record->author->username;
+        if ($news_item_record == null)
+            throw new NotFoundHttpException("A news item with id $news_item_id does not exist.");
+
+        $news_item = $this->newsItemArrayToModel($news_item_record, false);
 
         $news_items_tags = $news_item_record->newsItemsTags;
-        usort($news_items_tags, function ($news_item_tag1, $news_item_tag2) {
-            return $news_item_tag1->number - $news_item_tag2->number;
+        usort($news_items_tags, function ($tag1, $tag2) {
+            return $tag1->number - $tag2->number;
         });
         $tags = array();
         foreach ($news_items_tags as $news_item_tag) {
@@ -279,6 +213,72 @@ class NewsController extends Controller
         Yii::$app->response->headers->add('Content-Type', 'text/plain');
         // "Like!" may not be here
         return "Like! $news_item_record->number_of_likes";
+    }
+
+    // GET
+    public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
+    {
+        // php allows to assign another type value to the same variable
+        $tags = $tags === '' ? [] : explode(',', $tags);
+        $ascending = $order_by === 'new first' ? true : ($order_by === 'old first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
+
+        $news = $this->selectRelevantNews($tags, $ascending, $page_number);
+        return $this->render('home', compact('news'));
+    }
+
+    function selectRelevantNews($tags, $ascending, $page_number)
+    {
+        $tags = array_unique($tags);
+        $page_size = Yii::getAlias('@page_size');
+        $query = NewsItemRecord::find()
+            ->alias('ni')
+            ->asArray()
+            ->with('tags')
+            ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
+            ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
+            ->select([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ]);
+        // ofc i could select tag names here, but um... only in concated string like [tag1,tag2] and then explode it again
+        if (!empty($tags)) {
+            $query = $query->where(['t.name' => $tags]);
+        }
+        $news_array = $query->groupBy('ni.id')
+            ->having('COUNT(t.id) >= ' . sizeof($tags))
+            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+            ->offset(($page_number - 1) * $page_size)
+            ->limit($page_size)
+            ->all();
+        $news = array();
+        foreach ($news_array as $news_item) {
+            $news[] = $this->newsItemArrayToModel($news_item, true);
+        }
+        return $news;
+    }
+
+    /**
+     * @param NewsItemModel $news_item
+     */
+    function newsItemArrayToModel($news_item, $is_brief_model)
+    {
+        $news_item_model = new NewsItemModel();
+        $news_item_model->id = $news_item['id'];
+        $news_item_model->title = $news_item['title'];
+        $news_item_model->content = $news_item['content'];
+        $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
+        $news_item_model->number_of_likes = $news_item['number_of_likes'];
+        if ($is_brief_model) {
+            // the brief model doesn't need.. wait. actually any news item model needs ordered tags. fail. // TODO handle ordered tags
+            $news_item_model->tags = array_column($news_item['tags'], 'name');
+        } else {
+            // full news item model needs author.
+            $news_item->author_name = $news_item['author']['username'];
+        }
+        return $news_item_model;
     }
 
     // TODO handle redirecting to http://localhost/ after logout
