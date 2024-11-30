@@ -136,32 +136,16 @@ class NewsController extends Controller
     public function actionNewsItem(string $news_item_id)
     {
         // i hope it has an sql-injection protection
-
         $news_item_record = NewsItemRecord::find($news_item_id)
             ->asArray() // c# AsNoTracking() alternative afaik
             ->with('author')
+            ->with('orderedTags')
             ->one();
-        // try {
-        // }
-        // catch (\Exception) {
-        //     return 'you got exception which wasn\'t expected at all';
-        // }
+
         if ($news_item_record == null)
             throw new NotFoundHttpException("A news item with id $news_item_id does not exist.");
 
         $news_item = $this->newsItemArrayToModel($news_item_record, false);
-
-        $news_items_tags = $news_item_record->newsItemsTags;
-        usort($news_items_tags, function ($tag1, $tag2) {
-            return $tag1->number - $tag2->number;
-        });
-        $tags = array();
-        foreach ($news_items_tags as $news_item_tag) {
-            $tag_id = $news_item_tag->tag_id;
-            $tag = TagRecord::findOne($tag_id);
-            $tags[] = $tag->name;
-        }
-        $news_item->tags = $tags;
 
         return $this->render('news_item', compact('news_item'));
     }
@@ -230,25 +214,24 @@ class NewsController extends Controller
     {
         $tags = array_unique($tags);
         $page_size = Yii::getAlias('@page_size');
-        $query = NewsItemRecord::find()
+        $news_array = NewsItemRecord::find()
             ->alias('ni')
             ->asArray()
-            ->with('tags')
-            ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
-            ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
+            ->joinWith('tags')
+            // ->joinWith(['tags' => function($query) {
+            //     $query->select('tag.name'); // this thing breaks everything, because there's no primary key to match.
+            // }])
             ->select([
                 'ni.id',
                 'ni.title',
                 'ni.content',
                 'ni.posted_at',
                 'ni.number_of_likes'
-            ]);
-        // ofc i could select tag names here, but um... only in concated string like [tag1,tag2] and then explode it again
-        if (!empty($tags)) {
-            $query = $query->where(['t.name' => $tags]);
-        }
-        $news_array = $query->groupBy('ni.id')
-            ->having('COUNT(t.id) >= ' . sizeof($tags))
+                // 'tag.name' // it doesn't work because there's only news_item table in this query 
+            ])
+            ->where(!empty($tags) ? ['tag.name' => $tags] : [])
+            ->groupBy('ni.id')
+            ->having('COUNT(tag.id) >= ' . sizeof($tags))
             ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
             ->offset(($page_number - 1) * $page_size)
             ->limit($page_size)
@@ -271,12 +254,10 @@ class NewsController extends Controller
         $news_item_model->content = $news_item['content'];
         $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
         $news_item_model->number_of_likes = $news_item['number_of_likes'];
-        if ($is_brief_model) {
-            // the brief model doesn't need.. wait. actually any news item model needs ordered tags. fail. // TODO handle ordered tags
-            $news_item_model->tags = array_column($news_item['tags'], 'name');
-        } else {
+        $news_item_model->tags = array_column($news_item['tags'], 'name');
+        if (!$is_brief_model) {
             // full news item model needs author.
-            $news_item->author_name = $news_item['author']['username'];
+            $news_item_model->author_name = $news_item['author']['username'];
         }
         return $news_item_model;
     }
