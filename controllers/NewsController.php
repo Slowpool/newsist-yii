@@ -145,30 +145,18 @@ class NewsController extends Controller
     function selectRelevantNews($tags, $ascending, $page_number)
     {
         $tags = array_unique($tags);
-        // TODO sql injection protection???
-        $tag_ids = TagRecord::find()
-                            ->asArray()
-                            ->where(['name' => $tags])
-                            ->select('id')
-                            ->column();
-
-        
-
         $page_size = Yii::getAlias('@page_size');
-        $news_array = NewsItemRecord::find()
-                                    ->asArray()
-                                    // ->with('usersWhoLiked')
-                                    // ->with('newsItemsTags')
-                                    ->with('newsItemsTags.tag');
-        if(sizeof($tag_ids) != 0) {
-            $news_array = $news_array->where(['newsItemsTags.tag.id' => $tag_ids]);
-        }
-        $news_array = $news_array
-                             // ->where(['newsItemsTags.tag_id' => $tag_ids])
-                                ->orderBy(['posted_at' => $ascending ? SORT_ASC :SORT_DESC])
-                                ->offset(($page_number - 1) * $page_size)
-                                ->limit($page_size)
-                                ->all();
+        $news_array = NewsItemRecord::
+            find()
+            ->alias('ni')
+            ->asArray()
+            ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
+            ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
+            ->where(['t.name' => $tags])
+            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+            ->offset(($page_number - 1) * $page_size)
+            ->limit($page_size)
+            ->all();
         $news = array();
         foreach($news_array as $news_item) {
             $news[] = $this->newsItemArrayToModel($news_item);
