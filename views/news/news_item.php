@@ -12,23 +12,31 @@ use \views\news\partial\LikeButton;
 
 <article>
     <header>
-        <h1><?= Html::encode($news_item->title) ?></h1>
+        <h1>
+            <strong>
+                <?= Html::encode($news_item->title) ?>
+            </strong>
+        </h1>
         <p>
             <?php foreach ($news_item->tags as $tag): ?>
-                <span><?= Html::encode($tag) ?></span>
+                <span class="news-item-tag"><?= Html::encode($tag) ?></span>
             <?php endforeach ?>
         </p>
     </header>
 
 
-    <?= $news_item->content ?>
+    <?= Html::encode($news_item->content) ?>
 
     <footer>
         <address>
-            The news item from <?= Html::encode($news_item->author_name) ?>
+            <strong>
+                Author: <?= Html::encode($news_item->author_name) ?>
+            </strong>
         </address>
         <time>
-            Posted at <?= DateTimeFormat::dateTimeToStr($news_item->posted_at) ?>
+            <strong>
+                Posted at <?= DateTimeFormat::dateTimeToStr($news_item->posted_at) ?>
+            </strong>
         </time>
         <p>
             <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>

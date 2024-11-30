@@ -7,7 +7,7 @@ use yii\bootstrap5\Html;
 use \views\news\partial\LikeButton;
 use app\models\view_models\NewsItemModel;
 use yii\bootstrap5\ActiveForm;
-
+use \common\DateTimeFormat;
 
 $this->title = 'List of news';
 ?>
@@ -16,31 +16,31 @@ $this->title = 'List of news';
     <?= Html::a('SHARE THE NEWS ITEM', '/fill-in-a-new-news-item') ?>
 
     <search id="search-options">
-        <h4>Search options</h4>
+        <h5>Search options</h5>
     </search>
     <section id="search-results">
-        <h4>Results</h4>
+        <h5>Results</h5>
         <?php foreach ($news as $news_item): ?>
             <article>
-                <h3>
+                <h4>
                     <?= Html::encode($news_item->title) ?>
-                </h3>
+                </h4>
                 <p>
                     <?= Html::encode(substr($news_item->content, 0, 100)) ?>
                 </p>
-                <address>
-                    Author: <?= Html::encode($news_item->author_name) ?>
-                </address>
                 <p>
                     <?php foreach ($news_item->tags as $tag): ?>
-                        <span>
+                        <span class="news-item-tag">
                             <?= Html::encode($tag) ?>
                         </span>
                     <?php endforeach ?>
                 </p>
                 <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>
-                <?php Html::date('d/m/y', $news_item->posted_at ) ?>
+                <time>
+                    <?= DateTimeFormat::dateTimeToStr($news_item->posted_at) ?>
+                </time>
             </article>
+            <hr/>
         <?php endforeach ?>
     </section>
 </section>

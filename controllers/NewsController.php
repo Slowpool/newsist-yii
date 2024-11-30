@@ -135,46 +135,44 @@ class NewsController extends Controller
     public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
     {
         // php allows to assign another type value to the same variable
-        $tags = explode(',', $tags);
+        $tags = $tags === '' ? [] : explode(',', $tags);
         $ascending = $order_by === 'new first' ? true : ($order_by === 'new first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
 
-        $news_list = $this->selectRelevantNews($tags, $ascending, $page_number);
-        return $this->render('home', compact('news_list'));
+        $news = $this->selectRelevantNews($tags, $ascending, $page_number);
+        return $this->render('home', compact('news'));
     }
 
     function selectRelevantNews($tags, $ascending, $page_number)
     {
         $tags = array_unique($tags);
         $page_size = Yii::getAlias('@page_size');
-        $news_array = NewsItemRecord::
+        $query = NewsItemRecord::
             find()
             ->alias('ni')
             ->asArray()
             ->with('tags')
-            // TODO not sure aboat it (canada)
-            ->with('author')
-            ->select(['nit.id',
-                      'nit.title',
-                      'nit.content',
-                      'nit.posted_at',
-                      'nit.number_of_likes',
-                      'author.name',
-                      
-                      ])
             ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
             ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
-            ->where(['t.name' => $tags])
-            ->groupBy('ni.id')
-            ->having('COUNT(t.id) >= ' . sizeof($tags))
-            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
-            ->offset(($page_number - 1) * $page_size)
-            ->limit($page_size)
-            ->all();
+            ->select(['ni.id',
+                      'ni.title',
+                      'ni.content',
+                      'ni.posted_at',
+                      'ni.number_of_likes']);
+                      // ofc i could select tag names here, but um... only in concated string like [tag1,tag2] and then explode it again
+        if (!empty($tags)) {
+            $query = $query->where(['t.name' => $tags]);
+        }
+        $news_array = $query->groupBy('ni.id')
+                            ->having('COUNT(t.id) >= ' . sizeof($tags))
+                            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+                            ->offset(($page_number - 1) * $page_size)
+                            ->limit($page_size)
+                            ->all();
         $news = array();
         foreach($news_array as $news_item) {
             $news[] = $this->newsItemArrayToModel($news_item);
         }
-        return $this->render('home', compact($news));
+        return $news;
     }
 
     /**
@@ -182,17 +180,13 @@ class NewsController extends Controller
      */
     function newsItemArrayToModel($news_item) {
         $news_item_model = new NewsItemModel();
-            $news_item_model->id = $news_item['id'];
-            $news_item_model->title = $news_item['title'];
-            $tags = array();
-            foreach($news_item['tags'] as $tag) {
-                $tags[] = $tag['name'];
-            }
-            $news_item_model->tags = $tags;
-            $news_item_model->content = $news_item['content'];
-            $news_item_model->id = $news_item->id;
-            $news_item_model->id = $news_item->id;
-            return $news_item_model;
+        $news_item_model->id = $news_item['id'];
+        $news_item_model->title = $news_item['title'];
+        $news_item_model->tags = array_column($news_item['tags'], 'name');
+        $news_item_model->content = $news_item['content'];
+        $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
+        $news_item_model->number_of_likes = $news_item['number_of_likes'];
+        return $news_item_model;
     }
 
     // GET

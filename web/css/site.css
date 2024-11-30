@@ -86,3 +86,16 @@ a.desc:after {
 .form-group {
     margin-bottom: 1rem;
 }
+
+.news-item-tag {
+    border: 2px, solid black;
+    background-color: rgb(154, 220, 246);
+    padding: 4px;
+    margin-inline: 1px;
+    border-radius: 10px;
+}
+
+.news-item-like-button {
+    background-color: rgb(255, 133, 176);
+    font-size: 20px;
+}
