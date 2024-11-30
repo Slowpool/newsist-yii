@@ -8,6 +8,7 @@ use \views\news\partial\LikeButton;
 use app\models\view_models\NewsItemModel;
 use yii\bootstrap5\ActiveForm;
 use \common\DateTimeFormat;
+use \views\news\partial\NewsItemTagGenerator;
 
 $this->title = 'List of news';
 ?>
@@ -23,16 +24,16 @@ $this->title = 'List of news';
         <?php foreach ($news as $news_item): ?>
             <article>
                 <h4>
-                    <?= Html::encode($news_item->title) ?>
+                    <a href="/a-look-at-a-specific-news-item/<?= $news_item->id ?>" class="title-of-brief-news-item">
+                        <?= Html::encode($news_item->title) ?>
+                    </a>
                 </h4>
                 <p>
                     <?= Html::encode(substr($news_item->content, 0, 100)) ?>
                 </p>
                 <p>
                     <?php foreach ($news_item->tags as $tag): ?>
-                        <span class="news-item-tag">
-                            <?= Html::encode($tag) ?>
-                        </span>
+                        <?php NewsItemTagGenerator::generate($tag) ?>
                     <?php endforeach ?>
                 </p>
                 <?= LikeButton::generate($news_item->id, $news_item->number_of_likes) ?>

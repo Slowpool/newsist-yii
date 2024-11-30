@@ -136,7 +136,7 @@ class NewsController extends Controller
     {
         // php allows to assign another type value to the same variable
         $tags = $tags === '' ? [] : explode(',', $tags);
-        $ascending = $order_by === 'new first' ? true : ($order_by === 'new first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
+        $ascending = $order_by === 'new first' ? true : ($order_by === 'old first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
 
         $news = $this->selectRelevantNews($tags, $ascending, $page_number);
         return $this->render('home', compact('news'));

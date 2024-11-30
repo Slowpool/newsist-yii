@@ -7,6 +7,7 @@ use \yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
 use \common\DateTimeFormat;
 use \views\news\partial\LikeButton;
+use \views\news\partial\NewsItemTagGenerator;
 
 ?>
 
@@ -19,14 +20,11 @@ use \views\news\partial\LikeButton;
         </h1>
         <p>
             <?php foreach ($news_item->tags as $tag): ?>
-                <span class="news-item-tag"><?= Html::encode($tag) ?></span>
+                <?php NewsItemTagGenerator::generate($tag) ?>
             <?php endforeach ?>
         </p>
     </header>
-
-
     <?= Html::encode($news_item->content) ?>
-
     <footer>
         <address>
             <strong>
