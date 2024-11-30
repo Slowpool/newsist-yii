@@ -134,7 +134,7 @@ class NewsController extends Controller
     // GET
     public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
     {
-        // php allows to assign another type to the same variable
+        // php allows to assign another type value to the same variable
         $tags = explode(',', $tags);
         $ascending = $order_by === 'new first' ? true : ($order_by === 'new first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
 
@@ -142,30 +142,56 @@ class NewsController extends Controller
         return $this->render('home', compact('news_list'));
     }
 
-    function selectNews($tags, $ascending, $page_number)
+    function selectRelevantNews($tags, $ascending, $page_number)
     {
         $tags = array_unique($tags);
         // TODO sql injection protection???
         $tag_ids = TagRecord::find()
                             ->asArray()
                             ->where(['name' => $tags])
-                            ->all();
-
+                            ->select('id')
+                            ->column();
 
         
-        $news_list = NewsItemRecord::find()
-                                    ->with('userWhoLiked')
-                                    ->with('newsItemsTags')
-                                    ->where(['tag_id' => $tag_ids])
-                                    ->orderBy(['posted_at' => $ascending ? SORT_ASC : SORT_DESC])
-                                    // TODO set PAGE_SIZE = 10
-                                    ->limit(10)
-                                    // TODO set PAGE_SIZE = 10
-                                    ->offset(($page_number - 1) * 10)
-                                    // TODO finish this stuff
-                                    ->all();
-        // $news_list = $news_list->where();
-        return $news_list;
+
+        $page_size = Yii::getAlias('@page_size');
+        $news_array = NewsItemRecord::find()
+                                    ->asArray()
+                                    // ->with('usersWhoLiked')
+                                    // ->with('newsItemsTags')
+                                    ->with('newsItemsTags.tag');
+        if(sizeof($tag_ids) != 0) {
+            $news_array = $news_array->where(['newsItemsTags.tag.id' => $tag_ids]);
+        }
+        $news_array = $news_array
+                             // ->where(['newsItemsTags.tag_id' => $tag_ids])
+                                ->orderBy(['posted_at' => $ascending ? SORT_ASC :SORT_DESC])
+                                ->offset(($page_number - 1) * $page_size)
+                                ->limit($page_size)
+                                ->all();
+        $news = array();
+        foreach($news_array as $news_item) {
+            $news[] = $this->newsItemArrayToModel($news_item);
+        }
+        return $this->render('home', compact($news));
+    }
+
+    /**
+     * @param NewsItemModel $news_item
+     */
+    function newsItemArrayToModel($news_item) {
+        $news_item_model = new NewsItemModel();
+            $news_item_model->id = $news_item['id'];
+            $news_item_model->title = $news_item['title'];
+            $tags = array();
+            foreach($news_item['tags'] as $tag) {
+                $tags[] = $tag['name'];
+            }
+            $news_item_model->tags = $tags;
+            $news_item_model->content = $news_item['content'];
+            $news_item_model->id = $news_item->id;
+            $news_item_model->id = $news_item->id;
+            return $news_item_model;
     }
 
     // GET
@@ -235,18 +261,17 @@ class NewsController extends Controller
                 $news_item_like_record = new UserNewsItemLikeRecord();
                 $news_item_like_record->user_id = $user_id;
                 $news_item_like_record->news_item_id = $news_item_id;
-                // GOTCHA
                 $like_entry_handled = $news_item_like_record->save();
             } else {
                 // delete the like entry
                 // TODO should i handle exception here???
                 $like_entry_handled = $news_item_like_record->delete();
             }
-            // plus or minus like
-            $news_item_record->number_of_likes += ($is_like_up ? 1 : -1);
+            $news_item_record->updateCounters(['number_of_likes' => $is_like_up ? 1 : -1]);
+            // $news_item_record->number_of_likes += ($is_like_up ? 1 : -1);
             $number_of_likes_successfully_changed = $news_item_record->save();
 
-            if ($like_entry_handled !== false || $number_of_likes_successfully_changed !== false)
+            if ($like_entry_handled === false || $number_of_likes_successfully_changed === false)
                 throw new HttpException('failed to update like');
 
             $transaction->commit();
@@ -262,6 +287,8 @@ class NewsController extends Controller
     }
 
     // TODO handle redirecting to http://localhost/ after logout
+    // TODO posted_at should be generated in db
+
     // TODO delete
     function actionTest()
     {
