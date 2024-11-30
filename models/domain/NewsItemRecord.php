@@ -4,6 +4,7 @@ namespace app\models\domain;
 
 use Yii;
 use common\DateTimeFormat;
+use app\models\domain\TagRecord;
 
 /**
  * This is the model class for table "news_item".
@@ -69,6 +70,11 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     public function getAuthor()
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
+    }
+
+    public function getTags() {
+        return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
+                    ->via('newsItemsTags');
     }
 
     /**

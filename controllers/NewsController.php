@@ -150,9 +150,22 @@ class NewsController extends Controller
             find()
             ->alias('ni')
             ->asArray()
+            ->with('tags')
+            // TODO not sure aboat it (canada)
+            ->with('author')
+            ->select(['nit.id',
+                      'nit.title',
+                      'nit.content',
+                      'nit.posted_at',
+                      'nit.number_of_likes',
+                      'author.name',
+                      
+                      ])
             ->leftJoin(['nit' => 'news_items_tags'], 'nit.news_item_id = ni.id')
             ->leftJoin(['t' => 'tag'], 'nit.tag_id = t.id')
             ->where(['t.name' => $tags])
+            ->groupBy('ni.id')
+            ->having('COUNT(t.id) >= ' . sizeof($tags))
             ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
             ->offset(($page_number - 1) * $page_size)
             ->limit($page_size)
