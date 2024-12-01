@@ -5,6 +5,7 @@ namespace app\models\domain;
 use Yii;
 use common\DateTimeFormat;
 use app\models\domain\TagRecord;
+use DateTime;
 
 /**
  * This is the model class for table "news_item".
@@ -22,6 +23,9 @@ use app\models\domain\TagRecord;
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
+    // public $number_of_likes = 0;
+
+
     /**
      * {@inheritdoc}
      */

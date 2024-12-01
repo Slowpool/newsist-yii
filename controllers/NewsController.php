@@ -19,7 +19,7 @@ use app\models\domain\TagRecord;
 use app\models\domain\NewsItemTagRecord;
 use app\models\domain\UserNewsItemLikeRecord;
 use app\models\domain\User;
-
+use app\models\SearchOptionsModel;
 use DateTime;
 use common\DateTimeFormat;
 use yii\web\HttpException;
@@ -73,6 +73,7 @@ class NewsController extends Controller
     // POST
     public function actionSendANewNewsItem()
     {
+        // this method needs rewriting (not optimized)
         $data = Yii::$app->request->post('NewNewsItemModel');
         if (!isset($data))
             throw new BadRequestHttpException('attach a model the next time, please.');
@@ -80,29 +81,24 @@ class NewsController extends Controller
         $new_news_item = new NewsItemRecord();
         $new_news_item->title = $data['title'];
         $new_news_item->content = $data['content'];
-        $new_news_item->number_of_likes = 0;
         $new_news_item->author_id = Yii::$app->user->id;
+        // could these default values be set inside the model??
+        $new_news_item->number_of_likes = 0;
         $new_news_item->posted_at = new DateTime();
 
-        $model = new NewNewsItemModel();
-        $model->title = $data['title'];
-        $model->content = $data['content'];
-
         $tags = explode(',', $data['tags']);
-        $sql = 'SELECT * FROM `tag` WHERE `name` =:name';
         $number = 1;
         $tag_ids = [];
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            // TODO probably refresh is redundant here
-            // UPD i'm not sure whether it is a correct handling
-            if (!$new_news_item->save() || !$new_news_item->refresh()) {
+            // TODO figure out how to correctly handle error here 
+            if ($new_news_item->save() === false || $new_news_item->refresh() === false) {
                 throw new \Exception('Failed to insert');
             }
-
+            // TODO i don't like how the further part (till catch {}) is implemented
             foreach ($tags as $tag) {
-                $tag_record = TagRecord::findBySql($sql, [':name' => $tag])->one();
+                $tag_record = TagRecord::findOne(['name' => $tag]);
                 // create new tag if does not exist
                 if ($tag_record == null) {
                     $tag_record = new TagRecord();
@@ -128,6 +124,10 @@ class NewsController extends Controller
             return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
         } catch (\Exception) {
             $transaction->rollBack();
+            // display to user the data he tried to send
+            $model = new NewNewsItemModel();
+            $model->title = $data['title'];
+            $model->content = $data['content'];
             return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
         }
     }
@@ -136,10 +136,12 @@ class NewsController extends Controller
     public function actionNewsItem(string $news_item_id)
     {
         // i hope it has an sql-injection protection
-        $news_item_record = NewsItemRecord::find($news_item_id)
+        $news_item_record = NewsItemRecord::find() // the parameter $news_item_id used to be here, but it proved to be redundant. actually find() doesn't accept any parameter and VSC didn't say anything about it.
+            // TODO how to select only what is required
             ->asArray() // c# AsNoTracking() alternative afaik
-            ->with('author')
-            ->with('orderedTags')
+            ->joinWith('author')
+            ->joinWith('tags')
+            ->where(['news_item.id' => $news_item_id])
             ->one();
 
         if ($news_item_record == null)
@@ -200,25 +202,32 @@ class NewsController extends Controller
     }
 
     // GET
-    public function actionHome($tags = '', $order_by = 'new first', $page_number = 1)
+    public function actionHome()//($tags = '', $order_by = 'new first', $page_number = 1)
     {
+        $search_options = new SearchOptionsModel();
+        $search_options->load($_GET, '');
+        if (!$search_options->validate()) {
+            $this->render('home', compact('search_options'));
+        }
         // php allows to assign another type value to the same variable
-        $tags = $tags === '' ? [] : explode(',', $tags);
-        $ascending = $order_by === 'new first' ? true : ($order_by === 'old first' ? false : throw new BadRequestHttpException("incorrect value: order_by cannot be $order_by. Allowed values: \"new first\" or \"old first\""));
+        $tags = $search_options->tags === '' ? [] : explode(',', $search_options->tags);
+        $ascending = $search_options->order_by === 'old first';
 
-        $news = $this->selectRelevantNews($tags, $ascending, $page_number);
-        return $this->render('home', compact('news'));
+        $news = $this->selectRelevantNews($tags, $ascending, $search_options->page_number);
+        return $this->render('home', compact('news', 'search_options'));
     }
 
     function selectRelevantNews($tags, $ascending, $page_number)
     {
         $tags = array_unique($tags);
         $page_size = Yii::getAlias('@page_size');
+        // ok, it could be more optimized.
         $news_array = NewsItemRecord::find()
             ->alias('ni')
             ->asArray()
             ->joinWith('tags')
             // ->joinWith(['tags' => function($query) {
+            // TODO tags order is violated
             //     $query->select('tag.name'); // this thing breaks everything, because there's no primary key to match.
             // }])
             ->select([
@@ -226,8 +235,8 @@ class NewsController extends Controller
                 'ni.title',
                 'ni.content',
                 'ni.posted_at',
-                'ni.number_of_likes'
-                // 'tag.name' // it doesn't work because there's only news_item table in this query 
+                'ni.number_of_likes',
+                // 'tag.name'
             ])
             ->where(!empty($tags) ? ['tag.name' => $tags] : [])
             ->groupBy('ni.id')

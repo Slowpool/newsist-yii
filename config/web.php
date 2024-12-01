@@ -13,6 +13,7 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@page_size' => 10,
+        '@max_tag_length' => 40,
     ],
     'components' => [
         'request' => [

@@ -6,7 +6,14 @@ use yii\base\Model;
 
 class NewNewsItemModel extends Model
 {
-    public /*string*/ $title;
-    public /*string*/ $content;
-    public /*string*/ $tags;
+    public $title;
+    public $content;
+    public $tags;
+
+    public function rules()
+    {
+        return [
+            ['title', 'required']
+        ];
+    }
 }

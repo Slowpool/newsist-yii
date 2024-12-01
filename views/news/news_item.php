@@ -24,7 +24,9 @@ use \views\news\partial\NewsItemTagGenerator;
             <?php endforeach ?>
         </p>
     </header>
-    <?= Html::encode($news_item->content) ?>
+    <p>
+        <?= Html::encode($news_item->content) ?>
+    </p>
     <footer>
         <address>
             <strong>
