@@ -26,7 +26,7 @@ class SearchOptionsModel extends Model
 
     public function rules()
     {
-        $order_by_items = array_keys(SearchOptionsModel::$ORDER_BY_ITEMS);
+        $order_by_items = array_keys(self::$ORDER_BY_ITEMS);
         return [
             ['tags', 'validateTags'],
             [['tags', 'order_by', 'page_number'], 'safe'],

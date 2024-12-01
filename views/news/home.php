@@ -25,9 +25,7 @@ $this->title = 'List of news';
         <?php $form = ActiveForm::begin(['action' => '/a-list-of-news', 'method' => 'get', 'options' => ['autocomplete' => 'off']]) ?>
         <?= $form->field($search_options, 'tags')->textInput(['placeholder' => 'e.g. animals,joy,earth,potato,python']) ?>
         <?= $form->field($search_options, 'page_number')->textInput(['type' => 'number', 'min' => 1, 'placeholder' => 'e.g. 17']) ?>
-        <?php //TODO creepy 
-        ?>
-        <?= $form->field($search_options, 'order_by')->radioList(SearchOptionsModel::$ORDER_BY_ITEMS) ?>
+        <?= $form->field($search_options, 'order_by')->radioList(SearchOptionsModel::$ORDER_BY_ITEMS, ['unselect' => null]) ?>
         <?= Html::submitButton('Search', ['id' => 'search-button']) ?>
         <?php ActiveForm::end() ?>
     </search>
