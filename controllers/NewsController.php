@@ -13,13 +13,14 @@ use yii\web\BadRequestHttpException;
 
 use app\models\view_models\NewNewsItemModel;
 use app\models\view_models\NewsItemModel;
+use app\models\view_models\SearchOptionsModel;
+use app\models\view_models\PaginInfo;
 
 use app\models\domain\NewsItemRecord;
 use app\models\domain\TagRecord;
 use app\models\domain\NewsItemTagRecord;
 use app\models\domain\UserNewsItemLikeRecord;
 use app\models\domain\User;
-use app\models\SearchOptionsModel;
 use DateTime;
 use common\DateTimeFormat;
 use yii\web\HttpException;

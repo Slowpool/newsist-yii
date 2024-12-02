@@ -5,11 +5,12 @@
 
 /** @var app\models\view_models\NewsItemModel[] $news */
 /** @var app\models\view_models\SearchOptionsModel $search_options */
+/** @var app\models\view_models\PagingInfo $paging_info */
 
-use app\models\SearchOptionsModel;
+use app\models\view_models\SearchOptionsModel;
 use yii\bootstrap5\Html;
 use \views\news\partial\LikeButton;
-use \views\news\partial\TurnPageButton;
+use \views\news\partial\PagingBar;
 use app\models\view_models\NewsItemModel;
 use yii\bootstrap5\ActiveForm;
 use \common\DateTimeFormat;
@@ -19,7 +20,7 @@ $this->title = 'List of news';
 ?>
 
 <section class="site-index">
-        <?= Html::a('SHARE THE NEWS ITEM', '/fill-in-a-new-news-item', ['class' => 'share-news']) ?>
+    <?= Html::a('SHARE THE NEWS ITEM', '/fill-in-a-new-news-item', ['class' => 'share-news']) ?>
 
     <search id="search-options">
         <h5>Search options</h5>
@@ -39,10 +40,8 @@ $this->title = 'List of news';
                     Results
                 <?php endif; ?>
             </h4>
-            <nav class="turn-page">
-                <?php TurnPageButton::generate('Previous page', '', ['class' => 'turn-page-left']) ?>
-                <?php TurnPageButton::generate('Next page', '', ['class' => 'turn-page-right']) ?>
-            </nav>
+            <?php PagingBar::generate($page_info, $search_options) ?>
+            <?php PagingBar::$generated_bar ?>
             <hr />
             <?php foreach ($news as $news_item): ?>
                 <article>
@@ -66,6 +65,7 @@ $this->title = 'List of news';
                 </article>
                 <hr />
             <?php endforeach ?>
+            <?php PagingBar::$generated_bar ?>
         </section>
     <?php endif; ?>
 </section>
