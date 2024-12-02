@@ -22,7 +22,7 @@ return [
         'pattern' => 'a-list-of-news',
         'route' => 'news/home',
         'encodeParams' => false,
-        // turned out, that the follow defaults are for url-routes, in other words, they are for talk/<message>-like parameters where in talk/hello the "hello" is <message>. these defaults are not for query string (as i expected). in order to set defaults for query string, you should set them as a default values for a controller action method like function($tags = '').
+        // turned out, that the follow defaults are for url-routes, in other words, they are for talk/<message>-like parameters where in talk/hello the "hello" is <message>. these defaults are not for query string (as i expected). in order to set defaults for query string, you should set them as a default values for a controller action method like function($tags = ''). or via model.
         // 'defaults' => ['tags' => '', 'order_by' => 'new first', 'page_number' => 1]
     ],
     [

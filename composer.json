@@ -81,7 +81,8 @@
         "files": [
             "common\\DateTimeFormat.php",
             "views\\news\\partial\\like_button.php",
-            "views\\news\\partial\\news_item_tag_generator.php"
+            "views\\news\\partial\\news_item_tag_generator.php",
+            "views\\news\\partial\\turn_page_button.php"
         ]
     }
 }

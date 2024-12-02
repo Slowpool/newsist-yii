@@ -35,13 +35,14 @@ class NewsController extends Controller
 
     public function behaviors()
     {
+        $actions_for_logged_in = ['home', 'news-item', 'a-new-news-item-form', 'send-a-new-news-item', 'like-news-item'];
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['create', 'home', 'newsitem'],
+                'only' => $actions_for_logged_in,
                 'rules' => [
                     [
-                        'actions' => ['create', 'home', 'newsitem'],
+                        'actions' => $actions_for_logged_in,
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -50,9 +51,10 @@ class NewsController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'create' => ['get', 'post'],
+                    'home' => ['get'], 
+                    'a-new-news-item-form' => ['get'],
+                    'send-a-new-news-item' => ['post'],
                     'news-item' => ['get'],
-                    'home' => ['get'],
                     'like-news-item' => ['post']
                 ],
             ],
@@ -71,6 +73,7 @@ class NewsController extends Controller
     }
 
     // POST
+    // TODO when posted tag is too long is deleted???
     public function actionSendANewNewsItem()
     {
         // this method needs rewriting (not optimized)

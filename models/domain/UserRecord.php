@@ -13,7 +13,7 @@ use Yii;
  * @property string $authKey
  * @property string $accessToken
  *
- * @property User[] $users
+ * @property UserRecord[] $users
  */
 class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {

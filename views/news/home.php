@@ -9,6 +9,7 @@
 use app\models\SearchOptionsModel;
 use yii\bootstrap5\Html;
 use \views\news\partial\LikeButton;
+use \views\news\partial\TurnPageButton;
 use app\models\view_models\NewsItemModel;
 use yii\bootstrap5\ActiveForm;
 use \common\DateTimeFormat;
@@ -38,6 +39,10 @@ $this->title = 'List of news';
                     Results
                 <?php endif; ?>
             </h4>
+            <nav class="turn-page">
+                <?php TurnPageButton::generate('Previous page', '', ['class' => 'turn-page-left']) ?>
+                <?php TurnPageButton::generate('Next page', '', ['class' => 'turn-page-right']) ?>
+            </nav>
             <hr />
             <?php foreach ($news as $news_item): ?>
                 <article>

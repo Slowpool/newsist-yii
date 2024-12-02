@@ -142,7 +142,7 @@ a.share-news:hover {
     padding-bottom: 15px;
 }
 
-.form-check-input, .form-control, button {
+.form-check-input, .form-control, button, a.turn-page-left, a.turn-page-right {
     border: 2px solid gray;
 }
 
@@ -155,4 +155,25 @@ hr {
 body * {
     border-radius: 5px;
     /* border: 2px solid gray; */
+}
+
+a.turn-page-left, a.turn-page-right  {
+    background-color: rgb(154, 220, 246);
+    text-decoration: none;
+    font-size: 20px;
+    color: black;
+    padding: 3px;
+}
+
+nav.turn-page {
+    display: flex;
+    justify-content: space-between;
+}
+
+a.turn-page-left {
+    margin-left: 20px;
+}
+
+a.turn-page-right {
+    margin-right: 20px;
 }
