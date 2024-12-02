@@ -14,7 +14,7 @@ use yii\web\BadRequestHttpException;
 use app\models\view_models\NewNewsItemModel;
 use app\models\view_models\NewsItemModel;
 use app\models\view_models\SearchOptionsModel;
-use app\models\view_models\PaginInfo;
+use app\models\view_models\PagingInfo;
 
 use app\models\domain\NewsItemRecord;
 use app\models\domain\TagRecord;
@@ -206,7 +206,7 @@ class NewsController extends Controller
     }
 
     // GET
-    public function actionHome()//($tags = '', $order_by = 'new first', $page_number = 1)
+    public function actionHome()
     {
         $search_options = new SearchOptionsModel();
         $search_options->load($_GET, '');
@@ -218,11 +218,15 @@ class NewsController extends Controller
         $ascending = $search_options->order_by === 'old first';
 
         $news = $this->selectRelevantNews($tags, $ascending, $search_options->page_number);
-        return $this->render('home', compact('news', 'search_options'));
+        $paging_info = NewsItemRecord::gatherPagingInfo($search_options);
+        
+
+        return $this->render('home', compact('news', 'search_options', 'paging_info'));
     }
 
     function selectRelevantNews($tags, $ascending, $page_number)
     {
+        // TODO i've put all the business logic into controllers, that's wrong. it should be in active records.
         $tags = array_unique($tags);
         $page_size = Yii::getAlias('@page_size');
         // ok, it could be more optimized.

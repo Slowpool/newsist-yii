@@ -40,8 +40,8 @@ $this->title = 'List of news';
                     Results
                 <?php endif; ?>
             </h4>
-            <?php PagingBar::generate($page_info, $search_options) ?>
-            <?php PagingBar::$generated_bar ?>
+            <?php PagingBar::generate($paging_info, $search_options) ?>
+            <?= PagingBar::$generated_bar ?>
             <hr />
             <?php foreach ($news as $news_item): ?>
                 <article>
@@ -65,7 +65,7 @@ $this->title = 'List of news';
                 </article>
                 <hr />
             <?php endforeach ?>
-            <?php PagingBar::$generated_bar ?>
+            <?= PagingBar::$generated_bar ?>
         </section>
     <?php endif; ?>
 </section>

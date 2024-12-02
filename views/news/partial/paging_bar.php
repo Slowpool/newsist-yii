@@ -11,14 +11,18 @@ class PagingBar
 
     public static $generated_bar = null;
 
-    /** Generates paging bar and assign value to $generated_bar.
-     * So you can generate it once and then read as many times as you want.
+    /** Generates paging bar and assigns its string value to $generated_bar.
+     * So you can generate it once and then use as many times as you want.
      */
-    public static function generate($page_info, $search_options)
+    public static function generate($paging_info, $search_options)
     {
+        if (!$paging_info->can_turn_left && !$paging_info->can_turn_right) {
+            self::$generated_bar = '';
+        }
+
         self::$generated_bar = Html::tag('nav', null, ['class' => "turn-page"]);
-        self::$generated_bar .= self::generateButton($page_info->can_turn_left, 'left', $search_options);
-        self::$generated_bar .= self::generateButton($page_info->can_turn_right, 'right', $search_options);
+        self::$generated_bar .= self::generateButton($paging_info->can_turn_left, 'left', $search_options);
+        self::$generated_bar .= self::generateButton($paging_info->can_turn_right, 'right', $search_options);
         self::$generated_bar .= Html::endTag('nav');
     }
 

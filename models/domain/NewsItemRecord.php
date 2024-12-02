@@ -6,6 +6,9 @@ use Yii;
 use common\DateTimeFormat;
 use app\models\domain\TagRecord;
 use DateTime;
+use app\models\view_models\PagingInfo;
+use app\models\view_models\SearchOptionsModel;
+
 
 /**
  * This is the model class for table "news_item".
@@ -122,5 +125,21 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     {
         // i wish it works
         $this->posted_at = DateTimeFormat::strToDateTime($this->posted_at);
+    }
+
+    /** @param SearchOptionsModel $search_options */
+    public static function gatherPagingInfo($search_options) {
+        $paging_info = new PagingInfo();
+        $page_size = Yii::getAlias('@page_size');
+        // the index of previous page latter item. if news_item with this index exists, then turning to left is possible.
+        $number_required_to_turn_left = ($search_options->page_number - 1) * $page_size;
+        // the index of next page first item
+        $number_required_to_turn_right = $search_options->page_number * $page_size + 1;
+        $paging_info->can_turn_left = self::newsItemExists($number_required_to_turn_left, $search_options);
+        $paging_info->can_turn_right = self::newsItemExists($number_required_to_turn_right, $search_options);
+    }
+
+    public static function newsItemExists($index, $search_options) {
+
     }
 }
