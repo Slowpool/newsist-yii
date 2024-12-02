@@ -36,7 +36,8 @@ class NewsController extends Controller
 
     public function behaviors()
     {
-        $actions_for_logged_in = ['home', 'news-item', 'a-new-news-item-form', 'send-a-new-news-item', 'like-news-item'];
+        // TODO delete test
+        $actions_for_logged_in = ['home', 'news-item', 'a-new-news-item-form', 'send-a-new-news-item', 'like-news-item', 'test'];
         return [
             'access' => [
                 'class' => AccessControl::class,
@@ -52,11 +53,13 @@ class NewsController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'home' => ['get'], 
+                    'home' => ['get'],
                     'a-new-news-item-form' => ['get'],
                     'send-a-new-news-item' => ['post'],
                     'news-item' => ['get'],
-                    'like-news-item' => ['post']
+                    'like-news-item' => ['post'],
+                    // TODO delete
+                    'test' => ['get']
                 ],
             ],
         ];
@@ -143,9 +146,18 @@ class NewsController extends Controller
         $news_item_record = NewsItemRecord::find() // the parameter $news_item_id used to be here, but it proved to be redundant. actually find() doesn't accept any parameter and VSC didn't say anything about it.
             // TODO how to select only what is required
             ->asArray() // c# AsNoTracking() alternative afaik
-            ->joinWith('author')
+            ->alias('ni')
+            ->select([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes',
+                // 'a.username',
+            ])
             ->joinWith('tags')
-            ->where(['news_item.id' => $news_item_id])
+            // ->joinWith('author a')
+            ->where(['ni.id' => $news_item_id])
             ->one();
 
         if ($news_item_record == null)
@@ -218,8 +230,7 @@ class NewsController extends Controller
         $ascending = $search_options->order_by === 'old first';
 
         $news = $this->selectRelevantNews($tags, $ascending, $search_options->page_number);
-        $paging_info = NewsItemRecord::gatherPagingInfo($search_options);
-        
+        $paging_info = NewsItemRecord::gatherPagingInfo($search_options->page_number, $tags);
 
         return $this->render('home', compact('news', 'search_options', 'paging_info'));
     }
@@ -233,9 +244,10 @@ class NewsController extends Controller
         $news_array = NewsItemRecord::find()
             ->alias('ni')
             ->asArray()
-            ->joinWith('tags')
+            ->joinWith(['tags t' => function ($query) {
+                $query->select(['t.id', 't.name']);
+            }])
             // ->joinWith(['tags' => function($query) {
-            // TODO tags order is violated
             //     $query->select('tag.name'); // this thing breaks everything, because there's no primary key to match.
             // }])
             ->select([
@@ -248,7 +260,7 @@ class NewsController extends Controller
             ])
             ->where(!empty($tags) ? ['tag.name' => $tags] : [])
             ->groupBy('ni.id')
-            ->having('COUNT(tag.id) >= ' . sizeof($tags))
+            ->having('COUNT(`t`.`id`) >= ' . sizeof($tags))
             ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
             ->offset(($page_number - 1) * $page_size)
             ->limit($page_size)
@@ -285,15 +297,8 @@ class NewsController extends Controller
     // TODO delete
     function actionTest()
     {
-        // $first = false;
-        // if ($first) {
-        //     $news_item = NewsItemRecord::findOne('27');
-        //     $users_who_liked = $news_item->usersWhoLiked;
-        //     return $users_who_liked;
-        // } else {
-        //     $user = User::findOne('100');
-        //     $liked_news_items = $user->likedNewsItems[0];
-        //     return $liked_news_items->id;
-        // }
+        $news_item = NewsItemRecord::find()->asArray()->with('tags')->where(['id' => 44])->one();
+        var_dump($news_item);
+        return;
     }
 }

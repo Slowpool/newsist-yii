@@ -14,15 +14,15 @@ class PagingBar
     /** Generates paging bar and assigns its string value to $generated_bar.
      * So you can generate it once and then use as many times as you want.
      */
+    /** @return void */
     public static function generate($paging_info, $search_options)
     {
         if (!$paging_info->can_turn_left && !$paging_info->can_turn_right) {
             self::$generated_bar = '';
+            return;
         }
-
-        self::$generated_bar = Html::tag('nav', null, ['class' => "turn-page"]);
-        self::$generated_bar .= self::generateButton($paging_info->can_turn_left, 'left', $search_options);
-        self::$generated_bar .= self::generateButton($paging_info->can_turn_right, 'right', $search_options);
+        $nav_content = self::generateButton($paging_info->can_turn_left, 'left', $search_options) . self::generateButton($paging_info->can_turn_right, 'right', $search_options);
+        self::$generated_bar = Html::tag('nav', $nav_content, ['class' => "turn-page"]);
         self::$generated_bar .= Html::endTag('nav');
     }
 
@@ -33,11 +33,10 @@ class PagingBar
             $turn_value = $turn_direction === 'left' ? self::$PAGE_BACK : self::$PAGE_FORWARD;
             return Html::a($text, [
                 '/a-list-of-news',
-                [
-                    'order_by' => $search_options->order_by,
-                    'tags' => $search_options->tags,
-                    'page_number' => $search_options->page_number + $turn_value
-                ]
+                'order_by' => $search_options->order_by,
+                // TODO make the tags optionally here depending upon it is empty or not
+                'tags' => $search_options->tags,
+                'page_number' => $search_options->page_number + $turn_value
             ], ['class' => 'turn-page-' . $turn_direction]);
         }
     }

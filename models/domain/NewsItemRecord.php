@@ -7,7 +7,6 @@ use common\DateTimeFormat;
 use app\models\domain\TagRecord;
 use DateTime;
 use app\models\view_models\PagingInfo;
-use app\models\view_models\SearchOptionsModel;
 
 
 /**
@@ -20,7 +19,7 @@ use app\models\view_models\SearchOptionsModel;
  * @property int $number_of_likes
  * @property int $author_id
  *
- * @property User $author
+ * @property UserRecord $author
  * @property NewsItemTagRecord[] $newsItemTags
  * @property User[] $users
  */
@@ -76,23 +75,26 @@ class NewsItemRecord extends \yii\db\ActiveRecord
      */
     public function getAuthor()
     {
-        return $this->hasOne(User::class, ['id' => 'author_id']);
+        return $this->hasOne(UserRecord::class, ['id' => 'author_id']);
     }
 
-    public function getTags() {
-        return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
-                    ->via('newsItemsTags');
-    }
-
-    /**
-     * Gets query for [[NewsItemsTags]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getNewsItemsTags()
+    public function getTags()
     {
-        return $this->hasMany(NewsItemTagRecord::class, ['news_item_id' => 'id']);
+        return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
+            ->viaTable('news_items_tags', ['news_item_id' => 'id'])
+            ->joinWith('newsItemsTags AS nit')
+            ->orderBy('nit.number');
     }
+
+    // /**
+    //  * Gets query for [[NewsItemsTags]].
+    //  *
+    //  * @return \yii\db\ActiveQuery
+    //  */
+    // public function getNewsItemsTags()
+    // {
+    //     return $this->hasMany(NewsItemTagRecord::class, );
+    // }
 
     /**
      * Gets query for [[User]].
@@ -101,8 +103,8 @@ class NewsItemRecord extends \yii\db\ActiveRecord
      */
     public function getUsersWhoLiked()
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])
-                    ->viaTable('user_news_item_like', ['news_item_id' => 'id']);
+        return $this->hasMany(UserRecord::class, ['id' => 'user_id'])
+            ->viaTable('user_news_item_like', ['news_item_id' => 'id']);
     }
 
     /**
@@ -127,19 +129,38 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         $this->posted_at = DateTimeFormat::strToDateTime($this->posted_at);
     }
 
-    /** @param SearchOptionsModel $search_options */
-    public static function gatherPagingInfo($search_options) {
-        $paging_info = new PagingInfo();
+    public static function gatherPagingInfo($page_number, $tags)
+    {
         $page_size = Yii::getAlias('@page_size');
         // the index of previous page latter item. if news_item with this index exists, then turning to left is possible.
-        $number_required_to_turn_left = ($search_options->page_number - 1) * $page_size;
+        $number_required_to_turn_left = ($page_number - 1) * $page_size;
         // the index of next page first item
-        $number_required_to_turn_right = $search_options->page_number * $page_size + 1;
-        $paging_info->can_turn_left = self::newsItemExists($number_required_to_turn_left, $search_options);
-        $paging_info->can_turn_right = self::newsItemExists($number_required_to_turn_right, $search_options);
+        $number_required_to_turn_right = $page_number * $page_size + 1;
+        $paging_info = new PagingInfo();
+
+        $paging_info->can_turn_left = self::newsItemExists($number_required_to_turn_left, $tags);
+        $paging_info->can_turn_right = self::newsItemExists($number_required_to_turn_right, $tags);
+        return $paging_info;
     }
 
-    public static function newsItemExists($index, $search_options) {
-
+    public static function newsItemExists($index, $tags)
+    {
+        // spaceship operator? i see dumbbell
+        switch ($index <=> 0) {
+            case -1: // the offset in query will be negative
+                throw new \Exception("incorrect index");
+            case 0: // it's allowed
+                return false;
+            case 1:
+                return NewsItemRecord::find()
+                    ->alias('ni')
+                    ->joinWith('tags')
+                    ->where(!empty($tags) ? ['tag.name' => $tags] : [])
+                    ->groupBy('ni.id')
+                    ->having('COUNT(tag.id) >= ' . sizeof($tags))
+                    ->offset($index - 1)
+                    ->limit(1)
+                    ->exists();
+        }
     }
 }

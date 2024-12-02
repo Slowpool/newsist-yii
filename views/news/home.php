@@ -51,7 +51,7 @@ $this->title = 'List of news';
                         </a>
                     </h4>
                     <p>
-                        <?= Html::encode(substr($news_item->content, 0, 100)) ?>
+                        <?= Html::encode(substr($news_item->content, 0, 100) . '...') ?>
                     </p>
                     <p>
                         <?php foreach ($news_item->tags as $tag): ?>
