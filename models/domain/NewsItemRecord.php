@@ -4,7 +4,6 @@ namespace app\models\domain;
 
 use Yii;
 use common\DateTimeFormat;
-use app\models\domain\TagRecord;
 use DateTime;
 use app\models\view_models\PagingInfo;
 
@@ -21,7 +20,7 @@ use app\models\view_models\PagingInfo;
  *
  * @property UserRecord $author
  * @property NewsItemTagRecord[] $newsItemTags
- * @property User[] $users
+ * @property UserRecord[] $usersWhoLiked
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
@@ -81,20 +80,21 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     public function getTags()
     {
         return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
-            ->viaTable('news_items_tags', ['news_item_id' => 'id'])
-            ->joinWith('newsItemsTags AS nit')
-            ->orderBy('nit.number');
+            ->via('newsItemsTags')
+            ->joinWith('newsItemsTags nit');
+            // ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'nit.tag_id = tag.id')
+            // ->orderBy('nit.number');
     }
 
-    // /**
-    //  * Gets query for [[NewsItemsTags]].
-    //  *
-    //  * @return \yii\db\ActiveQuery
-    //  */
-    // public function getNewsItemsTags()
-    // {
-    //     return $this->hasMany(NewsItemTagRecord::class, );
-    // }
+    /**
+     * Gets query for [[NewsItemsTags]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNewsItemsTags()
+    {
+        return $this->hasMany(NewsItemTagRecord::class, ['news_item_id' => 'id']);
+    }
 
     /**
      * Gets query for [[User]].

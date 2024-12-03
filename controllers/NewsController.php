@@ -153,10 +153,14 @@ class NewsController extends Controller
                 'ni.content',
                 'ni.posted_at',
                 'ni.number_of_likes',
-                // 'a.username',
+                'ni.author_id',
+                'a.username'
             ])
-            ->joinWith('tags')
-            // ->joinWith('author a')
+            ->with('tags')
+            // ->with(['tags' => function($query) {
+            //     $query->orderBy('nit.number');
+            // }])
+            ->joinWith('author a') // here could be leftJoin
             ->where(['ni.id' => $news_item_id])
             ->one();
 
@@ -238,33 +242,37 @@ class NewsController extends Controller
     function selectRelevantNews($tags, $ascending, $page_number)
     {
         // TODO i've put all the business logic into controllers, that's wrong. it should be in active records.
+        // step 1. get all relevant news_item ids.
         $tags = array_unique($tags);
         $page_size = Yii::getAlias('@page_size');
-        // ok, it could be more optimized.
         $news_array = NewsItemRecord::find()
             ->alias('ni')
-            ->asArray()
-            ->joinWith(['tags t' => function ($query) {
-                $query->select(['t.id', 't.name']);
-            }])
-            // ->joinWith(['tags' => function($query) {
-            //     $query->select('tag.name'); // this thing breaks everything, because there's no primary key to match.
-            // }])
-            ->select([
-                'ni.id',
-                'ni.title',
-                'ni.content',
-                'ni.posted_at',
-                'ni.number_of_likes',
-                // 'tag.name'
-            ])
-            ->where(!empty($tags) ? ['tag.name' => $tags] : [])
-            ->groupBy('ni.id')
-            ->having('COUNT(`t`.`id`) >= ' . sizeof($tags))
+            // ->select(['`nit`.`news_item_id`'])
+            // ->select(['nit' => 'news_item_id'])
+            ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'ni.id = nit.news_item_id')
+            ->leftJoin(TagRecord::tableName() . ' AS t', 'nit.tag_id = t.id')
+            ->where(!empty($tags) ? ['t.name' => $tags] : [])
+            ->groupBy('nit.news_item_id')
+            // TODO i wanna benchmark
+            ->having(['>=', 'MAX(`nit`.`number`) ', sizeof($tags)])
             ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
             ->offset(($page_number - 1) * $page_size)
             ->limit($page_size)
+            ->with('tags')
+            ->asArray()
             ->all();
+
+        // $news_array = NewsItemRecord::find()
+        //     ->asArray()
+        //     ->alias('ni')
+        //     ->with('tags t')
+        //     ->where(!empty($tags) ? ['t.name' => $tags] : [])
+        //     ->groupBy('ni.id')
+        //     ->having('COUNT(`t`.`id`) >= ' . sizeof($tags))
+        //     ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+        //     ->offset(($page_number - 1) * $page_size)
+        //     ->limit($page_size)
+        //     ->all();
         $news = array();
         foreach ($news_array as $news_item) {
             $news[] = $this->newsItemArrayToModel($news_item, true);
@@ -293,11 +301,24 @@ class NewsController extends Controller
 
     // TODO handle redirecting to http://localhost/ after logout
     // TODO posted_at should be generated in db
+    // TODO conclusions+gotcha: ->with() means the extra request of some relation and subsequent attachment to AR of main query, whereas joinWith() means join of that relation in main query and subsequent attachment of relation by extra query. leftJoin() - joins a table with the main query without extra query.
 
     // TODO delete
     function actionTest()
     {
-        $news_item = NewsItemRecord::find()->asArray()->with('tags')->where(['id' => 44])->one();
+        $news_item = NewsItemRecord::find()
+            ->asArray()
+            ->alias('ni')
+            ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'ni.id = nit.news_item_id') // the separated query, which values will be joined later
+            ->select([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ])
+            ->where(['ni.id' => 44])
+            ->one();
         var_dump($news_item);
         return;
     }
