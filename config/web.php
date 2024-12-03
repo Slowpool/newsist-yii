@@ -12,8 +12,10 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        // the dude from https://qna.habr.com/q/272505?ysclid=m48qjsajxy874225026 said it's ok to use "aliases" in this way
         '@page_size' => 10,
-        '@max_tag_length' => 40,
+        '@max_tag_name_length' => 40,
+        '@max_news_item_content_length' => 1000,
     ],
     'components' => [
         'request' => [

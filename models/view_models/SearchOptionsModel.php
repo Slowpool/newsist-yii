@@ -49,7 +49,7 @@ class SearchOptionsModel extends Model
     {
         $tags = explode(',', $this->tags);
         // looks miserable
-        $max_tag_length = \Yii::getAlias('@max_tag_length');
+        $max_tag_length = \Yii::getAlias('@max_tag_name_length');
         foreach ($tags as $tag) {
             if (strlen($tag) > $max_tag_length) {
                 $this->addError($attribute, "The next tag length is too long (the max length is $max_tag_length): $tag");

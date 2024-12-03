@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `password` CHAR(64) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\nSET FOREIGN_KEY_CHECKS = 1;\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `password` CHAR(64) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\n\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\nCREATE TABLE `multimedia_file` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(128) NOT NULL,\n    UNIQUE (`id`, `name`),\n    `data` BLOB NOT NULL,\n    `mime_type` VARCHAR(50) NOT NULL, # it can be separated table (normalization)\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`)\n);\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 7,
-                    "column": 36
+                    "lineNumber": 54,
+                    "column": 25
                 },
                 "position": {
-                    "lineNumber": 7,
-                    "column": 36
+                    "lineNumber": 54,
+                    "column": 25
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 3,
+                "lineNumber": 48,
                 "column": 1
             },
-            "firstPositionDeltaTop": 47
+            "firstPositionDeltaTop": -4
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -49,8 +49,8 @@
                         {
                             "type": 4,
                             "index": 0,
-                            "resultId": "b5e8d16d-0a02-49d4-a83a-05c24c9758b4",
-                            "content": "OK, 0 records retrieved in 1.077ms"
+                            "resultId": "876616a7-1d1a-48cd-ba8f-1c64656d541f",
+                            "content": "OK, 0 records retrieved in 0.996ms"
                         }
                     ]
                 },
@@ -79,12 +79,15 @@
                     "type": "text",
                     "text": [
                         {
-                            "type": 4,
+                            "type": 0,
                             "index": 0,
-                            "resultId": "fac24b8e-928a-4cb3-affb-8d0d1ad6be89",
-                            "content": "OK, 0 records retrieved in 1ms"
+                            "content": "MySQL Error (1046): No database selected",
+                            "language": "ansi"
                         }
-                    ]
+                    ],
+                    "executionInfo": {
+                        "text": ""
+                    }
                 },
                 "currentHeight": 28,
                 "currentSet": 1,
@@ -136,7 +139,7 @@
                         }
                     ]
                 },
-                "currentHeight": 82.984375,
+                "currentHeight": 28,
                 "currentSet": 1,
                 "statements": [
                     {
@@ -170,18 +173,9 @@
                         "delimiter": ";",
                         "span": {
                             "start": 282,
-                            "length": 28
+                            "length": 5
                         },
-                        "contentStart": 283,
-                        "state": 0
-                    },
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 310,
-                            "length": 4
-                        },
-                        "contentStart": 312,
+                        "contentStart": 285,
                         "state": 3
                     }
                 ]
@@ -333,7 +327,7 @@
                         }
                     ]
                 },
-                "currentHeight": 28,
+                "currentHeight": 45.484375,
                 "currentSet": 1,
                 "statements": [
                     {
@@ -361,7 +355,80 @@
         {
             "state": {
                 "start": 50,
-                "end": 50,
+                "end": 59,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 4,
+                            "index": 0,
+                            "resultId": "6678f1e8-642a-4869-d662-daa4a4fc510a",
+                            "content": "OK, 0 records retrieved in 33.904ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 341
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 341,
+                            "length": 1
+                        },
+                        "contentStart": 340,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 60,
+                "end": 60,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 4,
+                            "index": 0,
+                            "resultId": "f3eade8f-8923-4e2b-ea78-845c99c10b5f",
+                            "content": "OK, 0 records retrieved in 0s"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 27
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 61,
+                "end": 61,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [
