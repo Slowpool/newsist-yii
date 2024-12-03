@@ -81,9 +81,9 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     {
         return $this->hasMany(TagRecord::class, ['id' => 'tag_id'])
             ->via('newsItemsTags')
-            ->joinWith('newsItemsTags nit');
-            // ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'nit.tag_id = tag.id')
-            // ->orderBy('nit.number');
+            ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'nit.tag_id = tag.id')
+            ->select(['tag.id', 'tag.name', 'nit.number'])
+            ->orderBy('nit.number');
     }
 
     /**

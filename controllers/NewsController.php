@@ -142,9 +142,7 @@ class NewsController extends Controller
     // GET
     public function actionNewsItem(string $news_item_id)
     {
-        // i hope it has an sql-injection protection
         $news_item_record = NewsItemRecord::find() // the parameter $news_item_id used to be here, but it proved to be redundant. actually find() doesn't accept any parameter and VSC didn't say anything about it.
-            // TODO how to select only what is required
             ->asArray() // c# AsNoTracking() alternative afaik
             ->alias('ni')
             ->select([
@@ -153,15 +151,14 @@ class NewsController extends Controller
                 'ni.content',
                 'ni.posted_at',
                 'ni.number_of_likes',
-                'ni.author_id',
-                'a.username'
+                'author.username AS author_name'
             ])
-            ->with('tags')
-            // ->with(['tags' => function($query) {
-            //     $query->orderBy('nit.number');
-            // }])
-            ->joinWith('author a') // here could be leftJoin
+            ->leftJoin('user AS author', '`author`.`id` = `ni`.`author_id`')
             ->where(['ni.id' => $news_item_id])
+            // turned out that this is workaround. this doesn't work with several news it's pity
+            ->with(['tags' => function ($query) use ($news_item_id) {
+                $query->where(['=', 'nit.news_item_id', $news_item_id]);
+            }])
             ->one();
 
         if ($news_item_record == null)
@@ -248,12 +245,26 @@ class NewsController extends Controller
         $news_array = NewsItemRecord::find()
             ->alias('ni')
             // ->select(['`nit`.`news_item_id`'])
-            // ->select(['nit' => 'news_item_id'])
+            // ->select('nit.news_item_id AS id')
+            // ->select('`nit`.*')
+            ->select([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ])
             ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'ni.id = nit.news_item_id')
             ->leftJoin(TagRecord::tableName() . ' AS t', 'nit.tag_id = t.id')
             ->where(!empty($tags) ? ['t.name' => $tags] : [])
-            ->groupBy('nit.news_item_id')
-            // TODO i wanna benchmark
+            ->groupBy([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ])
+            // TODO i wanna benchmark for COUNT(ni.id) and MAX(nit.number). they return the same value here.
             ->having(['>=', 'MAX(`nit`.`number`) ', sizeof($tags)])
             ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
             ->offset(($page_number - 1) * $page_size)
@@ -291,10 +302,13 @@ class NewsController extends Controller
         $news_item_model->content = $news_item['content'];
         $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
         $news_item_model->number_of_likes = $news_item['number_of_likes'];
+        // usort($news_item['tags'], function($tag1, $tag2) {
+        //     return $tag1['number'] - $tag2['number'];
+        // });
         $news_item_model->tags = array_column($news_item['tags'], 'name');
         if (!$is_brief_model) {
             // full news item model needs author.
-            $news_item_model->author_name = $news_item['author']['username'];
+            $news_item_model->author_name = $news_item['author_name'];
         }
         return $news_item_model;
     }
