@@ -25,7 +25,16 @@ use \views\news\partial\NewsItemTagGenerator;
         </p>
     </header>
     <p>
-        <?= Html::encode($news_item->content) ?>
+        
+    
+    <?php
+            \s![a-z]+\.[a-z]+\s
+    ?>
+    <?= Html::encode($news_item->content) ?>
+
+
+
+
     </p>
     <footer>
         <address>
