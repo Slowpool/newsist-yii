@@ -73,6 +73,6 @@ class MultimediaFileRecord extends \yii\db\ActiveRecord
         $record->name = $uploaded_file->name;
         // TODO is it matter?
         $record->mime_type = 'doesn\'t matter???';
-        $record->use
+        $record->data = $uploaded_file->()
     }
 }
