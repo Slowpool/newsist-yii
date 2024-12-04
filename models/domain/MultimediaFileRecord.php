@@ -64,4 +64,15 @@ class MultimediaFileRecord extends \yii\db\ActiveRecord
     //     return $this->hasOne(NewsItemRecord::class, ['id' => 'news_item_id'])
     //                 ->inverseOf('multimediaFiles'); // i think i don't need it
     // }
+
+    /** @return self */
+    /** @var self $record */
+    /** @param yii\web\UploadedFile $uploaded_file */
+    public static function mapUploadedFileToSelf($uploaded_file) {
+        $record = new self();
+        $record->name = $uploaded_file->name;
+        // TODO is it matter?
+        $record->mime_type = 'doesn\'t matter???';
+        $record->use
+    }
 }

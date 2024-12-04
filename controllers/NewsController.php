@@ -10,6 +10,10 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
+use yii\web\UploadedFile;
 
 use app\models\view_models\NewNewsItemModel;
 use app\models\view_models\NewsItemModel;
@@ -20,12 +24,10 @@ use app\models\domain\NewsItemRecord;
 use app\models\domain\TagRecord;
 use app\models\domain\NewsItemTagRecord;
 use app\models\domain\UserNewsItemLikeRecord;
-use app\models\domain\User;
-use DateTime;
+use app\models\domain\MultimediaFilerecord;
+
 use common\DateTimeFormat;
-use yii\web\HttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
+use DateTime;
 
 // use yii\web\Response;
 // use yii\filters\VerbFilter;
@@ -81,30 +83,41 @@ class NewsController extends Controller
     public function actionSendANewNewsItem()
     {
         // this method needs rewriting (not optimized)
-        $data = Yii::$app->request->post('NewNewsItemModel');
-        if (!isset($data))
+        $model = new NewNewsItemModel();
+        if (!$model->load(Yii::$app->request->post()))
             throw new BadRequestHttpException('attach a model the next time, please.');
-
+        
+        $model->files = UploadedFile::getInstance($model, 'files');
+        if(!$model->validate()) {
+            return $this->render('create', ['model' => $model, 'errors' => $model->errors]);
+        }
+        
         $new_news_item = new NewsItemRecord();
-        $new_news_item->title = $data['title'];
-        $new_news_item->content = $data['content'];
+        $new_news_item->title = $model['title'];
+        $new_news_item->content = $model['content'];
         $new_news_item->author_id = Yii::$app->user->id;
         // could these default values be set inside the model??
         $new_news_item->number_of_likes = 0;
         $new_news_item->posted_at = new DateTime();
 
-        $tags = explode(',', $data['tags']);
+        // it isn't complete mapping. the return value doesn't have news_item_id value, which is unknown yet, so it'll be fetched after news_item->refresh()
+        $multimedia_file = MultimediaFileRecord::mapUploadedFileToSelf($model->files);
+        $tags = explode(',', $model['tags']);
         $number = 1;
         $tag_ids = [];
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            // TODO figure out how to correctly handle error here 
-            if ($new_news_item->save() === false || $new_news_item->refresh() === false) {
-                throw new \Exception('Failed to insert');
+            if ($new_news_item->save(false) === false) {
+                throw new ServerErrorHttpException('Failed to save the news item');
             }
+            if($new_news_item->refresh() === false) {
+                throw new ServerErrorHttpException('Failed to obtain info back after its insert');
+            }
+            $multimedia_file->news_item_id = 
             // TODO i don't like how the further part (till catch {}) is implemented
             foreach ($tags as $tag) {
+                // it can be implemented in one query as i think
                 $tag_record = TagRecord::findOne(['name' => $tag]);
                 // create new tag if does not exist
                 if ($tag_record == null) {
@@ -132,9 +145,6 @@ class NewsController extends Controller
         } catch (\Exception) {
             $transaction->rollBack();
             // display to user the data he tried to send
-            $model = new NewNewsItemModel();
-            $model->title = $data['title'];
-            $model->content = $data['content'];
             return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
         }
     }

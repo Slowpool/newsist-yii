@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `password` CHAR(64) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\n\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\nCREATE TABLE `multimedia_file` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(128) NOT NULL,\n    `mime_type` VARCHAR(50) NOT NULL, # it can be separated table (normalization)\n    `extension` VARCHAR(10) NOT NULL, # it can be separated table (normalization)\n    UNIQUE (`id`, `name`, `extension`),\n    `data` BLOB NOT NULL,\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`)\n);\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `password` CHAR(64) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\n\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\nDROP TABLE IF EXISTS `multimedia_file`;\nCREATE TABLE `multimedia_file` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(128) NOT NULL,\n    `mime_type` VARCHAR(50) NOT NULL, # it can be separated table (normalization)\n    `extension` VARCHAR(10) NOT NULL, # it can be separated table (normalization)\n    UNIQUE (`id`, `name`, `extension`),\n    `data` BLOB NOT NULL,\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`)\n);\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 54,
-                    "column": 82
+                    "lineNumber": 50,
+                    "column": 39
                 },
                 "position": {
-                    "lineNumber": 54,
-                    "column": 82
+                    "lineNumber": 50,
+                    "column": 39
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 49,
+                "lineNumber": 47,
                 "column": 1
             },
-            "firstPositionDeltaTop": -4
+            "firstPositionDeltaTop": -21
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -355,7 +355,7 @@
         {
             "state": {
                 "start": 50,
-                "end": 60,
+                "end": 61,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -375,18 +375,27 @@
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 436
+                            "length": 39
                         },
-                        "contentStart": 0,
+                        "contentStart": 1,
                         "state": 0
                     },
                     {
                         "delimiter": ";",
                         "span": {
-                            "start": 436,
+                            "start": 39,
+                            "length": 437
+                        },
+                        "contentStart": 40,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 476,
                             "length": 1
                         },
-                        "contentStart": 435,
+                        "contentStart": 475,
                         "state": 3
                     }
                 ]
@@ -395,8 +404,8 @@
         },
         {
             "state": {
-                "start": 61,
-                "end": 61,
+                "start": 62,
+                "end": 62,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -427,8 +436,8 @@
         },
         {
             "state": {
-                "start": 62,
-                "end": 62,
+                "start": 63,
+                "end": 63,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [

@@ -13,7 +13,8 @@ class NewNewsItemModel extends Model
     public $content;
     public $tags;
 
-    /** @var UploadedFile[] */
+    // TODO must be several files
+    /** @var UploadedFile */
     public $files;
 
     public function rules()
@@ -22,7 +23,7 @@ class NewNewsItemModel extends Model
             // TODO add validation? i wanted tags validation via special validator for both create and search 
             // ['content', ['compareValue' => Yii::getAlias('@max_news_item_content_length')]]
             ['title', 'required'],
-            [['files'], 'file', 'extensions' => 'jpeg, mp3, mp4', 'maxFiles' => 5]
+            [['files'], 'file', 'extensions' => 'jpg, jpeg, mp3, mp4, txt', 'maxFiles' => 5]
         ];
     }
 
@@ -38,4 +39,8 @@ class NewNewsItemModel extends Model
     //         }
     //     }
     // }
+
+    public function formName() {
+        return '';
+    }
 }
