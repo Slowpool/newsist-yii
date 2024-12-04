@@ -28,10 +28,12 @@ use \views\news\partial\NewsItemTagGenerator;
         
     
     <?php
-            \s![a-z]+\.[a-z]+\s
+            // \s![a-z]+\.[a-z]+\s
     ?>
     <?= Html::encode($news_item->content) ?>
-
+    <?php
+        
+    ?>
 
 
 

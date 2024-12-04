@@ -37,7 +37,6 @@ class MultimediaFileRecord extends \yii\db\ActiveRecord
             // TODO probably remove `extension`
             [['extension'], 'string', 'max' => 10],
             [['news_item_id'], 'exist', 'skipOnError' => true, 'targetClass' => NewsItemRecord::class, 'targetAttribute' => ['news_item_id' => 'id']],
-            [['upload'], 'file', 'extensions' => 'jpeg, mp3, mp4', 'maxFiles' => 5]
         ];
     }
 
