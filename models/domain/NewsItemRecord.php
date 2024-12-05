@@ -163,8 +163,4 @@ class NewsItemRecord extends \yii\db\ActiveRecord
                     ->exists();
         }
     }
-
-    public function getMultimediaFiles() {
-        return $this->hasMany(MultimediaFileRecord::class, ['news_item_id' => 'id']);
-    }
 }

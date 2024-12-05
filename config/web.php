@@ -12,6 +12,7 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@uploads' => '@app/uploads',
         // the dude from https://qna.habr.com/q/272505?ysclid=m48qjsajxy874225026 said it's ok to use "aliases" in this way
         '@page_size' => 10,
         '@max_tag_name_length' => 40,

@@ -14,7 +14,7 @@ class NewNewsItemModel extends Model
     public $tags;
 
     // TODO must be several files
-    /** @var UploadedFile */
+    /** @var UploadedFile name is plural but actually it's single */
     public $files;
 
     public function rules()
@@ -23,8 +23,19 @@ class NewNewsItemModel extends Model
             // TODO add validation? i wanted tags validation via special validator for both create and search 
             // ['content', ['compareValue' => Yii::getAlias('@max_news_item_content_length')]]
             ['title', 'required'],
+            [['title', 'content', 'tags'], 'safe'],
+            [['content'], 'validateContent'],
             [['files'], 'file', 'extensions' => 'jpg, jpeg, mp3, mp4, txt', 'maxFiles' => 5]
         ];
+    }
+
+    public function validateContent($attribute, $params, $validator) {
+        $file_labels_count = preg_match_all("\s![a-z]+\.[a-z]+\s", $this->content);
+        // TODO uncomment for several files
+        // $attached_files_count = sizeof($this->files);
+        // if ($file_labels_count != $attached_files_count) {
+        //     $this->addError($attribute, "The count of file labels isn\'t equal to count of attached files. File labels: $file_labels_count. Attached files: $attached_files_count");
+        // }
     }
 
     // public function test() {

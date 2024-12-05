@@ -86,12 +86,13 @@ class NewsController extends Controller
         $model = new NewNewsItemModel();
         if (!$model->load(Yii::$app->request->post()))
             throw new BadRequestHttpException('attach a model the next time, please.');
-        
+
         $model->files = UploadedFile::getInstance($model, 'files');
-        if(!$model->validate()) {
+
+        if (!$model->validate()) {
             return $this->render('create', ['model' => $model, 'errors' => $model->errors]);
         }
-        
+
         $new_news_item = new NewsItemRecord();
         $new_news_item->title = $model['title'];
         $new_news_item->content = $model['content'];
@@ -100,8 +101,14 @@ class NewsController extends Controller
         $new_news_item->number_of_likes = 0;
         $new_news_item->posted_at = new DateTime();
 
-        // it isn't complete mapping. the return value doesn't have news_item_id value, which is unknown yet, so it'll be fetched after news_item->refresh()
-        $multimedia_file = MultimediaFileRecord::mapUploadedFileToSelf($model->files);
+        try {
+            $dir = Yii::getAlias('@uploads') . '/' . $new_news_item->id;
+            mkdir($dir);
+            $model->files->saveAs($dir . '/' . $model->files->name);
+        } catch (\Exception) {
+            throw new ServerErrorHttpException("Failed to save uploaded file");
+        }
+
         $tags = explode(',', $model['tags']);
         $number = 1;
         $tag_ids = [];
@@ -111,15 +118,15 @@ class NewsController extends Controller
             if ($new_news_item->save(false) === false) {
                 throw new ServerErrorHttpException('Failed to save the news item');
             }
-            if($new_news_item->refresh() === false) {
-                throw new ServerErrorHttpException('Failed to obtain info back after its insert');
+            if ($new_news_item->refresh() === false) {
+                throw new ServerErrorHttpException('Failed to obtain the news item info back after its insert');
             }
-            $multimedia_file->news_item_id = 
+
             // TODO i don't like how the further part (till catch {}) is implemented
             foreach ($tags as $tag) {
                 // it can be implemented in one query as i think
                 $tag_record = TagRecord::findOne(['name' => $tag]);
-                // create new tag if does not exist
+                // create a new tag if does not exist
                 if ($tag_record == null) {
                     $tag_record = new TagRecord();
                     $tag_record->name = $tag;
@@ -143,6 +150,7 @@ class NewsController extends Controller
             $transaction->commit();
             return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
         } catch (\Exception) {
+            // TODO ensure rmdir for /uploads/news_item_id
             $transaction->rollBack();
             // display to user the data he tried to send
             return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
