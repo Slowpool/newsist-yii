@@ -101,14 +101,6 @@ class NewsController extends Controller
         $new_news_item->number_of_likes = 0;
         $new_news_item->posted_at = new DateTime();
 
-        try {
-            $dir = Yii::getAlias('@uploads') . '/' . $new_news_item->id;
-            mkdir($dir);
-            $model->files->saveAs($dir . '/' . $model->files->name);
-        } catch (\Exception) {
-            throw new ServerErrorHttpException("Failed to save uploaded file");
-        }
-
         $tags = explode(',', $model['tags']);
         $number = 1;
         $tag_ids = [];
@@ -120,6 +112,16 @@ class NewsController extends Controller
             }
             if ($new_news_item->refresh() === false) {
                 throw new ServerErrorHttpException('Failed to obtain the news item info back after its insert');
+            }
+            // files saving
+            // try catch inside try. sorry
+            try {
+                // TODO foreach
+                $dir = Yii::getAlias('@uploads') . "/$new_news_item->id";
+                mkdir($dir);
+                $model->files->saveAs("$dir/" . $model->files->name);
+            } catch (\Exception) {
+                throw new ServerErrorHttpException("Failed to save uploaded files");
             }
 
             // TODO i don't like how the further part (till catch {}) is implemented
@@ -149,11 +151,12 @@ class NewsController extends Controller
             }
             $transaction->commit();
             return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
             // TODO ensure rmdir for /uploads/news_item_id
             $transaction->rollBack();
+            throw $exception;
             // display to user the data he tried to send
-            return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
+            // return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
         }
     }
 

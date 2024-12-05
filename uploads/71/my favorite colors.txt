@@ -1,2 +1,0 @@
-46 180 234 white-blue
-15 134 207 dark-blue

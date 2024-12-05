@@ -12,11 +12,13 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
-        '@uploads' => '@app/uploads',
+        '@uploads' => '@app/web/uploads',
         // the dude from https://qna.habr.com/q/272505?ysclid=m48qjsajxy874225026 said it's ok to use "aliases" in this way
         '@page_size' => 10,
         '@max_tag_name_length' => 40,
         '@max_news_item_content_length' => 1000,
+        // gg. it return regexp without delimiter at the end.
+        // '@regexp_file_label_pattern' => "/\s![a-z]+\\.[a-z]+/"
     ],
     'components' => [
         'request' => [

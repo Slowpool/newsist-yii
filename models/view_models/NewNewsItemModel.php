@@ -25,15 +25,17 @@ class NewNewsItemModel extends Model
             ['title', 'required'],
             [['title', 'content', 'tags'], 'safe'],
             [['content'], 'validateContent'],
-            [['files'], 'file', 'extensions' => 'jpg, jpeg, mp3, mp4, txt', 'maxFiles' => 5]
+            [['files'], 'file', 'extensions' => 'jpg, jpeg, mp3, mp4, png', 'maxFiles' => 5]
         ];
     }
 
     public function validateContent($attribute, $params, $validator) {
-        $file_labels_count = preg_match_all("\s![a-z]+\.[a-z]+\s", $this->content);
+        // $file_labels_count = preg_match_all("\s![a-z]+\.[a-z]+\s", $this->content);
         // TODO uncomment for several files
         // $attached_files_count = sizeof($this->files);
-        // if ($file_labels_count != $attached_files_count) {
+        // the sign < due to you could past one file in several places.
+        // TODO check unique file_labels
+        // if ($file_labels_count < $attached_files_count) {
         //     $this->addError($attribute, "The count of file labels isn\'t equal to count of attached files. File labels: $file_labels_count. Attached files: $attached_files_count");
         // }
     }
