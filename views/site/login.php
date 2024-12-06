@@ -49,7 +49,7 @@ $this->title = 'Signing in';
             <?php ActiveForm::end(); ?>
 
             <div style="color:#999;">
-                You may login with <strong>admin/admin</strong> or <strong>john/password</strong>.<br> or <strong>anatolii/parol</strong>
+                You may login with <strong>admin/admin</strong> or <strong>john/password</strong>.<br> or <strong>anatolii/parol</strong> or <strong><?= Html::encode("xss<script>alert('hello')<script>/parol")?></strong>
             </div>
 
         </div>
