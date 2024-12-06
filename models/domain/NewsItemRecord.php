@@ -33,7 +33,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         $this->title = $model['title'];
         $this->content = $model['content'];
         $this->author_id = Yii::$app->user->id;
-        
+
         $this->posted_at = new DateTime();
         $this->number_of_likes = 0;
     }
@@ -190,7 +190,10 @@ class NewsItemRecord extends \yii\db\ActiveRecord
             if ($this->refresh() === false) {
                 throw new \Exception('Failed to obtain the news item info back after its insert');
             }
-            $new_news_item->saveFiles($this->id); // it should be beyond transaction (i think). a large files will cause long table locks
+
+            if ($new_news_item->files != null) {
+                $new_news_item->saveFiles($this->id); // it should be beyond transaction (i think). a large files will cause long table locks
+            }
             $tag_ids = TagRecord::insertDistinctTags($tags);
             NewsItemTagRecord::bindTagsToNewsItem($this->id, $tag_ids);
             $transaction->commit();
@@ -232,6 +235,6 @@ class NewsItemRecord extends \yii\db\ActiveRecord
             ->limit($page_size)
             ->with('tags')
             ->asArray()
-            ->all();        
+            ->all();
     }
 }

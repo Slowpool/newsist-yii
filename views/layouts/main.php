@@ -49,7 +49,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     : '<li class="nav-item">'
                     . Html::beginForm(['/logout'])
                     . Html::submitButton(
-                        'Logout (' . Yii::$app->user->identity->username . ')',
+                        'Logout (' . Html::encode(Yii::$app->user->identity->username) . ')',
                         ['class' => 'nav-link btn btn-link logout']
                     )
                     . Html::endForm()
