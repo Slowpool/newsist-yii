@@ -68,4 +68,15 @@ class NewsItemTagRecord extends \yii\db\ActiveRecord
     {
         return $this->hasOne(NewsItemRecord::class, ['id' => 'news_item_id']);
     }
+
+    public static function bindTagsToNewsItem($news_item_id, $tag_ids) {
+        $number = 1;
+        foreach ($tag_ids as $tag_id) {
+            $news_item_tag = new NewsItemTagRecord();
+            $news_item_tag->tag_id = $tag_id;
+            $news_item_tag->news_item_id = $news_item_id;
+            $news_item_tag->number = $number++;
+            $news_item_tag->save();
+        }
+    }
 }

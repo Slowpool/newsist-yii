@@ -24,8 +24,19 @@ use app\models\view_models\PagingInfo;
  */
 class NewsItemRecord extends \yii\db\ActiveRecord
 {
-    // public $number_of_likes = 0;
-
+    /** @param NewNewsItemModel $model */
+    // no-constructor-overload-pain
+    public function __construct($model = null)
+    {
+        if ($model === null)
+            return;
+        $this->title = $model['title'];
+        $this->content = $model['content'];
+        $this->author_id = Yii::$app->user->id;
+        
+        $this->posted_at = new DateTime();
+        $this->number_of_likes = 0;
+    }
 
     /**
      * {@inheritdoc}
@@ -43,12 +54,14 @@ class NewsItemRecord extends \yii\db\ActiveRecord
         return [
             [['title', 'posted_at', 'number_of_likes', 'author_id'], 'required'],
             [['posted_at'], 'safe'],
-            // [['posted_at'], 'datetime'],
+            // [['posted_at'], 'datetime'], // TODO timestamp?
             [['number_of_likes', 'author_id'], 'integer'],
+            // doesn't work. sadness.
+            // [['number_of_likes'], 'default', 'value' => 0],
             [['title'], 'string', 'max' => 100],
             [['content'], 'string', 'max' => 1000],
             [['title'], 'unique'],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['author_id' => 'id']]
+            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserRecord::class, 'targetAttribute' => ['author_id' => 'id']]
         ];
     }
 
@@ -162,5 +175,61 @@ class NewsItemRecord extends \yii\db\ActiveRecord
                     ->limit(1)
                     ->exists();
         }
+    }
+
+    /** @param NewNewsItemModel $new_news_item */
+    public function insertTransact($new_news_item)
+    {
+        $tags = explode(',', $new_news_item['tags']);
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($this->save() === false) {
+                throw new \Exception('Failed to save the news item');
+            }
+            if ($this->refresh() === false) {
+                throw new \Exception('Failed to obtain the news item info back after its insert');
+            }
+            $new_news_item->saveFiles(); // it should be beyond transaction (i think). a large files will cause long table locks
+            $tag_ids = TagRecord::insertDistinctTags($tags);
+            NewsItemTagRecord::bindTagsToNewsItem($new_news_item->id, $tag_ids);
+            $transaction->commit();
+        } catch (\Exception $exception) {
+            // TODO ensure rmdir for /uploads/news_item_id
+            $transaction->rollBack();
+            throw $exception;
+        }
+    }
+
+    public static function selectRelevantNews($tags, $ascending, $page_number)
+    {
+        $tags = array_unique($tags);
+        $page_size = Yii::getAlias('@page_size');
+        return NewsItemRecord::find()
+            ->alias('ni')
+            ->select([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ])
+            ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'ni.id = nit.news_item_id')
+            ->leftJoin(TagRecord::tableName() . ' AS t', 'nit.tag_id = t.id')
+            ->where(!empty($tags) ? ['t.name' => $tags] : [])
+            ->groupBy([
+                'ni.id',
+                'ni.title',
+                'ni.content',
+                'ni.posted_at',
+                'ni.number_of_likes'
+            ])
+            // TODO i wanna benchmark for COUNT(ni.id) and MAX(nit.number). they return the same value here.
+            ->having(['>=', 'MAX(`nit`.`number`) ', sizeof($tags)])
+            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
+            ->offset(($page_number - 1) * $page_size)
+            ->limit($page_size)
+            ->with('tags')
+            ->asArray()
+            ->all();        
     }
 }

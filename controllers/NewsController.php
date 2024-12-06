@@ -79,85 +79,16 @@ class NewsController extends Controller
     }
 
     // POST
-    // TODO when posted tag is too long is deleted???
+    // TODO when posted tag is too long is it deleted???
     public function actionSendANewNewsItem()
     {
-        // this method needs rewriting (not optimized)
         $model = new NewNewsItemModel();
-        if (!$model->load(Yii::$app->request->post()))
-            throw new BadRequestHttpException('attach a model the next time, please.');
-
-        $model->files = UploadedFile::getInstance($model, 'files');
-
-        if (!$model->validate()) {
+        if ($model->handleUpload() === false) {
             return $this->render('create', ['model' => $model, 'errors' => $model->errors]);
         }
-
-        $new_news_item = new NewsItemRecord();
-        $new_news_item->title = $model['title'];
-        $new_news_item->content = $model['content'];
-        $new_news_item->author_id = Yii::$app->user->id;
-        // could these default values be set inside the model??
-        $new_news_item->number_of_likes = 0;
-        $new_news_item->posted_at = new DateTime();
-
-        $tags = explode(',', $model['tags']);
-        $number = 1;
-        $tag_ids = [];
-
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            if ($new_news_item->save(false) === false) {
-                throw new ServerErrorHttpException('Failed to save the news item');
-            }
-            if ($new_news_item->refresh() === false) {
-                throw new ServerErrorHttpException('Failed to obtain the news item info back after its insert');
-            }
-            // files saving
-            // try catch inside try. sorry
-            try {
-                // TODO foreach
-                $dir = Yii::getAlias('@uploads') . "/$new_news_item->id";
-                mkdir($dir);
-                $model->files->saveAs("$dir/" . $model->files->name);
-            } catch (\Exception) {
-                throw new ServerErrorHttpException("Failed to save uploaded files");
-            }
-
-            // TODO i don't like how the further part (till catch {}) is implemented
-            foreach ($tags as $tag) {
-                // it can be implemented in one query as i think
-                $tag_record = TagRecord::findOne(['name' => $tag]);
-                // create a new tag if does not exist
-                if ($tag_record == null) {
-                    $tag_record = new TagRecord();
-                    $tag_record->name = $tag;
-                    $tag_record->save();
-                    $tag_record->refresh();
-                }
-                // ignore duplicates
-                if (!in_array($tag_record->id, $tag_ids)) {
-                    $tag_ids[] = $tag_record->id;
-                }
-            }
-
-            // bind tags to the news_item
-            foreach ($tag_ids as $tag_id) {
-                $news_item_tag_record = new NewsItemTagRecord();
-                $news_item_tag_record->tag_id = $tag_id;
-                $news_item_tag_record->news_item_id = $new_news_item->id;
-                $news_item_tag_record->number = $number++;
-                $news_item_tag_record->save();
-            }
-            $transaction->commit();
-            return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$new_news_item->id"));
-        } catch (\Exception $exception) {
-            // TODO ensure rmdir for /uploads/news_item_id
-            $transaction->rollBack();
-            throw $exception;
-            // display to user the data he tried to send
-            // return $this->render('create', ['model' => $model, 'errors' => $new_news_item->errors]);
-        }
+        $new_news_item = new NewsItemRecord($model);
+        $new_news_item->insertTransact($model);
+        $this->redirect(Url::to("/a-look-at-a-specific-news-item/$this->id"));
     }
 
     // GET
@@ -251,87 +182,14 @@ class NewsController extends Controller
         $tags = $search_options->tags === '' ? [] : explode(',', $search_options->tags);
         $ascending = $search_options->order_by === 'old first';
 
-        $news = $this->selectRelevantNews($tags, $ascending, $search_options->page_number);
+        $news_array = NewsItemRecord::selectRelevantNews($tags, $ascending, $search_options->page_number);
+        $news = [];
+        foreach ($news_array as $news_item) {
+            $news[] = NewsItemModel::newsItemArrayToModel($news_item, true);
+        }
         $paging_info = NewsItemRecord::gatherPagingInfo($search_options->page_number, $tags);
 
         return $this->render('home', compact('news', 'search_options', 'paging_info'));
-    }
-
-    function selectRelevantNews($tags, $ascending, $page_number)
-    {
-        // TODO i've put all the business logic into controllers, that's wrong. it should be in active records.
-        // step 1. get all relevant news_item ids.
-        $tags = array_unique($tags);
-        $page_size = Yii::getAlias('@page_size');
-        $news_array = NewsItemRecord::find()
-            ->alias('ni')
-            // ->select(['`nit`.`news_item_id`'])
-            // ->select('nit.news_item_id AS id')
-            // ->select('`nit`.*')
-            ->select([
-                'ni.id',
-                'ni.title',
-                'ni.content',
-                'ni.posted_at',
-                'ni.number_of_likes'
-            ])
-            ->leftJoin(NewsItemTagRecord::tableName() . ' AS nit', 'ni.id = nit.news_item_id')
-            ->leftJoin(TagRecord::tableName() . ' AS t', 'nit.tag_id = t.id')
-            ->where(!empty($tags) ? ['t.name' => $tags] : [])
-            ->groupBy([
-                'ni.id',
-                'ni.title',
-                'ni.content',
-                'ni.posted_at',
-                'ni.number_of_likes'
-            ])
-            // TODO i wanna benchmark for COUNT(ni.id) and MAX(nit.number). they return the same value here.
-            ->having(['>=', 'MAX(`nit`.`number`) ', sizeof($tags)])
-            ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
-            ->offset(($page_number - 1) * $page_size)
-            ->limit($page_size)
-            ->with('tags')
-            ->asArray()
-            ->all();
-
-        // $news_array = NewsItemRecord::find()
-        //     ->asArray()
-        //     ->alias('ni')
-        //     ->with('tags t')
-        //     ->where(!empty($tags) ? ['t.name' => $tags] : [])
-        //     ->groupBy('ni.id')
-        //     ->having('COUNT(`t`.`id`) >= ' . sizeof($tags))
-        //     ->orderBy(['ni.posted_at' => $ascending ? SORT_ASC : SORT_DESC])
-        //     ->offset(($page_number - 1) * $page_size)
-        //     ->limit($page_size)
-        //     ->all();
-        $news = array();
-        foreach ($news_array as $news_item) {
-            $news[] = $this->newsItemArrayToModel($news_item, true);
-        }
-        return $news;
-    }
-
-    /**
-     * @param NewsItemModel $news_item
-     */
-    function newsItemArrayToModel($news_item, $is_brief_model)
-    {
-        $news_item_model = new NewsItemModel();
-        $news_item_model->id = $news_item['id'];
-        $news_item_model->title = $news_item['title'];
-        $news_item_model->content = $news_item['content'];
-        $news_item_model->posted_at = DateTimeFormat::strToDateTime($news_item['posted_at']); // have to call it manually because when you use asArray in active record query, the afterFind() isn't being invoked
-        $news_item_model->number_of_likes = $news_item['number_of_likes'];
-        // usort($news_item['tags'], function($tag1, $tag2) {
-        //     return $tag1['number'] - $tag2['number'];
-        // });
-        $news_item_model->tags = array_column($news_item['tags'], 'name');
-        if (!$is_brief_model) {
-            // full news item model needs author.
-            $news_item_model->author_name = $news_item['author_name'];
-        }
-        return $news_item_model;
     }
 
     // TODO handle redirecting to http://localhost/ after logout

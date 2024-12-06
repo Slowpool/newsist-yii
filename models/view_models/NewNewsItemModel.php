@@ -29,7 +29,8 @@ class NewNewsItemModel extends Model
         ];
     }
 
-    public function validateContent($attribute, $params, $validator) {
+    public function validateContent($attribute, $params, $validator)
+    {
         // $file_labels_count = preg_match_all("\s![a-z]+\.[a-z]+\s", $this->content);
         // TODO uncomment for several files
         // $attached_files_count = sizeof($this->files);
@@ -53,7 +54,25 @@ class NewNewsItemModel extends Model
     //     }
     // }
 
-    public function formName() {
+    public function formName()
+    {
         return '';
+    }
+
+    public function handleUpload()
+    {
+        if (!$this->load(Yii::$app->request->post()))
+            return false;
+        $this->files = UploadedFile::getInstance($this, 'files');
+        if (!$this->validate())
+            return false;
+        return true;
+    }
+
+    public function saveFiles() {
+        $dir = Yii::getAlias('@uploads') . "/$this->id";
+        mkdir($dir);
+        // TODO add foreach
+        $this->files->saveAs("$dir/" . $this->files->name);
     }
 }
