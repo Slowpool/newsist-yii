@@ -17,7 +17,6 @@ use Yii;
  */
 class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    // TODO DEBUG IDENTITY TO CHECK HOW IT WORKS
     /**
      * {@inheritdoc}
      */
@@ -32,9 +31,9 @@ class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterf
     public function rules()
     {
         return [
-            [['username', 'password', 'authKey', 'accessToken'], 'required'],
+            [['username', 'passwordHash', 'authKey', 'accessToken'], 'required'],
             [['username', 'authKey', 'accessToken'], 'string', 'max' => 100],
-            [['password'], 'string', 'max' => 64],
+            [['passwordHash'], 'string', 'max' => 128],
         ];
     }
 
@@ -46,7 +45,7 @@ class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterf
         return [
             'id' => 'ID',
             'username' => 'Username',
-            'password' => 'Password',
+            'passwordHash' => 'Password hash',
             'authKey' => 'Auth key',
             'accessToken' => 'Access token',
         ];
@@ -128,9 +127,15 @@ class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterf
     /**
      * {@inheritdoc}
      */
+    // TODO why to use it?
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getPasswordHash()
+    {
+        return $this->passwordHash;
     }
 
     /**
@@ -157,7 +162,25 @@ class UserRecord extends \yii\db\ActiveRecord implements \yii\web\IdentityInterf
      */
     public function validatePassword($password)
     {
-        // TODO needs hashing
-        return $this->password === $password;
+        return self::hashPassword($password) === $this->passwordHash;
+    }
+
+    /** @return false|UserRecord */
+    public static function register($username, $password) {
+        if(self::findByUsername($username) === null) {
+            $user = new UserRecord();
+            $user->username = $username;
+            $user->passwordHash = self::hashPassword($password);
+            // honestly, i don't know anything about it
+            $user->authKey = Yii::$app->security->generateRandomString();
+            $user->accessToken = Yii::$app->security->generateRandomString(16);
+            $user->save();
+            return $user;
+        }
+        return false;
+    }
+
+    private static function hashPassword($password) {
+        return hash('sha512', $password);
     }
 }

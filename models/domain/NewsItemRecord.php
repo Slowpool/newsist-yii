@@ -178,6 +178,7 @@ class NewsItemRecord extends \yii\db\ActiveRecord
     }
 
     /** @param NewNewsItemModel $new_news_item */
+    /** @return int news item id */
     public function insertTransact($new_news_item)
     {
         $tags = explode(',', $new_news_item['tags']);
@@ -189,10 +190,11 @@ class NewsItemRecord extends \yii\db\ActiveRecord
             if ($this->refresh() === false) {
                 throw new \Exception('Failed to obtain the news item info back after its insert');
             }
-            $new_news_item->saveFiles(); // it should be beyond transaction (i think). a large files will cause long table locks
+            $new_news_item->saveFiles($this->id); // it should be beyond transaction (i think). a large files will cause long table locks
             $tag_ids = TagRecord::insertDistinctTags($tags);
-            NewsItemTagRecord::bindTagsToNewsItem($new_news_item->id, $tag_ids);
+            NewsItemTagRecord::bindTagsToNewsItem($this->id, $tag_ids);
             $transaction->commit();
+            return $this->id;
         } catch (\Exception $exception) {
             // TODO ensure rmdir for /uploads/news_item_id
             $transaction->rollBack();

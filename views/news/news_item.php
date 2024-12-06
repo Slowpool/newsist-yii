@@ -9,6 +9,7 @@ use \common\DateTimeFormat;
 use \views\news\partial\LikeButton;
 use \views\news\partial\NewsItemTagGenerator;
 
+$this->title = 'News item - ' . Html::encode($news_item->title);
 ?>
 
 <article>
@@ -28,9 +29,8 @@ use \views\news\partial\NewsItemTagGenerator;
         <?php
         // TODO create const
         $pattern = "/\[[^]]+\]/";
-        $matches_number = preg_match($pattern, $news_item->content, $matches, PREG_OFFSET_CAPTURE);
-        // all user's text is encoded, but tags from further foreach()
         $news_item->content = Html::encode($news_item->content);
+        $matches_number = preg_match($pattern, $news_item->content, $matches, PREG_OFFSET_CAPTURE);
         foreach ($matches as $match) {
             $file_name = trim($match[0], '[]');
             $html_tag_name = getTagForFileDisplaying($file_name, $display_controls);
@@ -43,14 +43,14 @@ use \views\news\partial\NewsItemTagGenerator;
                 ],
                 $display_controls ? ['controls' => ''] : []
             ));
-            // replaces the !nice.haha with <img src="/uploads/nice.haha"></img>
+            // replaces the [nice.haha] with <img src="/uploads/nice.haha"></img>
             $news_item->content = substr_replace($news_item->content, $html_tag, $match[1], strlen($match[0]));
         }
         echo $news_item->content;
 
-        function getTagForFileDisplaying($fil_ename, &$display_controls)
+        function getTagForFileDisplaying($file_name, &$display_controls)
         {
-            switch (substr($fil_ename, strpos($fil_ename, '.') + 1)) {
+            switch (substr($file_name, strrpos($file_name, '.') + 1)) {
                 case "png":
                 case "jpeg":
                 case "jpg":

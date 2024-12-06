@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `password` CHAR(64) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\n\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\nDROP TABLE IF EXISTS `multimedia_file`;\nCREATE TABLE `multimedia_file` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(128) NOT NULL,\n    UNIQUE (`id`, `name`, `extension`),\n    `data` BLOB NOT NULL,\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`)\n);\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
+    "content": "USE `newsist_yii`;\nSHOW TABLES;\nSET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `username` VARCHAR(100) UNIQUE NOT NULL,\n    `passwordHash` CHAR(128) NOT NULL,\n    `authKey` VARCHAR(100) NOT NULL,\n    `accessToken` VARCHAR(100) NOT NULL\n    );\n\n\nDROP TABLE IF EXISTS `news_item`;\nCREATE TABLE `news_item`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `title` VARCHAR(100) UNIQUE NOT NULL,\n    `content` VARCHAR(1000),\n    `posted_at` TIMESTAMP NOT NULL,\n    `number_of_likes` INT NOT NULL,\n    `author_id` INT NOT NULL,\n    FOREIGN KEY (`author_id`) REFERENCES `user` (`id`)\n);\nDROP TABLE IF EXISTS `tag`;\nCREATE TABLE `tag`\n(\n    `id` INT PRIMARY KEY AUTO_INCREMENT,\n    `name` VARCHAR(40) NOT NULL UNIQUE\n);\nDROP TABLE IF EXISTS `news_items_tags`;\nCREATE TABLE `news_items_tags`\n(\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    `tag_id` INT NOT NULL,\n    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`),\n    `number` INT NOT NULL,\n    PRIMARY KEY (`news_item_id`, `tag_id`)\n);\nDROP TABLE IF EXISTS `user_news_item_like`;\nCREATE TABLE `user_news_item_like`\n(\n    `user_id` INT NOT NULL,\n    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),\n    `news_item_id` INT NOT NULL,\n    FOREIGN KEY (`news_item_id`) REFERENCES `news_item` (`id`),\n    PRIMARY KEY (`user_id`, `news_item_id`)\n);\n\nSET FOREIGN_KEY_CHECKS = 1;\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 53,
-                    "column": 34
+                    "lineNumber": 8,
+                    "column": 15
                 },
                 "position": {
-                    "lineNumber": 53,
-                    "column": 34
+                    "lineNumber": 8,
+                    "column": 15
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 49,
+                "lineNumber": 2,
                 "column": 1
             },
-            "firstPositionDeltaTop": -8
+            "firstPositionDeltaTop": 51
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -139,7 +139,7 @@
                         }
                     ]
                 },
-                "currentHeight": 28,
+                "currentHeight": 82.984375,
                 "currentSet": 1,
                 "statements": [
                     {
@@ -164,7 +164,7 @@
                         "delimiter": ";",
                         "span": {
                             "start": 56,
-                            "length": 226
+                            "length": 231
                         },
                         "contentStart": 57,
                         "state": 0
@@ -172,10 +172,10 @@
                     {
                         "delimiter": ";",
                         "span": {
-                            "start": 282,
+                            "start": 287,
                             "length": 5
                         },
-                        "contentStart": 285,
+                        "contentStart": 290,
                         "state": 3
                     }
                 ]
@@ -327,7 +327,7 @@
                         }
                     ]
                 },
-                "currentHeight": 82.984375,
+                "currentHeight": 28,
                 "currentSet": 1,
                 "statements": [
                     {
@@ -355,7 +355,7 @@
         {
             "state": {
                 "start": 50,
-                "end": 59,
+                "end": 50,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -368,34 +368,16 @@
                         }
                     ]
                 },
-                "currentHeight": 45.484375,
+                "currentHeight": 28,
                 "currentSet": 1,
                 "statements": [
                     {
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 39
+                            "length": 0
                         },
-                        "contentStart": 1,
-                        "state": 0
-                    },
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 39,
-                            "length": 273
-                        },
-                        "contentStart": 40,
-                        "state": 0
-                    },
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 312,
-                            "length": 1
-                        },
-                        "contentStart": 311,
+                        "contentStart": -1,
                         "state": 3
                     }
                 ]
@@ -404,8 +386,8 @@
         },
         {
             "state": {
-                "start": 60,
-                "end": 60,
+                "start": 51,
+                "end": 51,
                 "language": "mysql",
                 "result": {
                     "type": "text",
@@ -436,8 +418,8 @@
         },
         {
             "state": {
-                "start": 61,
-                "end": 61,
+                "start": 52,
+                "end": 52,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [

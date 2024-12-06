@@ -51,6 +51,7 @@ $this->title = 'List of news';
                         </a>
                     </h4>
                     <p>
+                        <?php //TODO replace the [file.extension] with, e.g., icon "Video" or "Picture" ?>
                         <?= Html::encode(substr($news_item->content, 0, 100) . '...') ?>
                     </p>
                     <p>

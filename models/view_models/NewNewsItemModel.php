@@ -25,7 +25,7 @@ class NewNewsItemModel extends Model
             ['title', 'required'],
             [['title', 'content', 'tags'], 'safe'],
             [['content'], 'validateContent'],
-            [['files'], 'file', 'extensions' => 'jpg, jpeg, mp3, mp4, png', 'maxFiles' => 5]
+            [['files'], 'file', 'extensions' => 'jpg,jpeg,mp3,mp4,png', 'maxFiles' => 5]
         ];
     }
 
@@ -69,8 +69,8 @@ class NewNewsItemModel extends Model
         return true;
     }
 
-    public function saveFiles() {
-        $dir = Yii::getAlias('@uploads') . "/$this->id";
+    public function saveFiles($news_item_id) {
+        $dir = Yii::getAlias('@uploads') . "/$news_item_id";
         mkdir($dir);
         // TODO add foreach
         $this->files->saveAs("$dir/" . $this->files->name);

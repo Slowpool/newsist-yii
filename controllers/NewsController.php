@@ -87,8 +87,8 @@ class NewsController extends Controller
             return $this->render('create', ['model' => $model, 'errors' => $model->errors]);
         }
         $new_news_item = new NewsItemRecord($model);
-        $new_news_item->insertTransact($model);
-        $this->redirect(Url::to("/a-look-at-a-specific-news-item/$this->id"));
+        $news_item_id = $new_news_item->insertTransact($model);
+        return $this->redirect(Url::to("/a-look-at-a-specific-news-item/$news_item_id"));
     }
 
     // GET
@@ -116,7 +116,7 @@ class NewsController extends Controller
         if ($news_item_record == null)
             throw new NotFoundHttpException("A news item with id $news_item_id does not exist.");
 
-        $news_item = $this->newsItemArrayToModel($news_item_record, false);
+        $news_item = NewsItemModel::newsItemArrayToModel($news_item_record, false);
 
         return $this->render('news_item', compact('news_item'));
     }
