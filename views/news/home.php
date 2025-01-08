@@ -17,6 +17,9 @@ use \common\DateTimeFormat;
 use \views\news\partial\NewsItemTagGenerator;
 
 $this->title = 'List of news';
+// obsolete
+// $this->description = 'Explore news';
+
 ?>
 
 <section class="site-index">

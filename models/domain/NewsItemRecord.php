@@ -3,6 +3,7 @@
 namespace app\models\domain;
 
 use Yii;
+use app\models\view_models\NewNewsItemModel;
 use common\DateTimeFormat;
 use DateTime;
 use app\models\view_models\PagingInfo;

@@ -1,5 +1,7 @@
 <?php
 
+use app\models\view_models\NewsItemModel;
+
 /** @var NewsItemModel $news_item */
 /** @var yii\web\View $this */
 
@@ -10,6 +12,9 @@ use \views\news\partial\LikeButton;
 use \views\news\partial\NewsItemTagGenerator;
 
 $this->title = 'News item - ' . Html::encode($news_item->title);
+
+// obsolete
+// $this->description = 'Explore specific news item';
 
 // TODO jpg isn't displayed, the single item on last page isn't displayed
 ?>

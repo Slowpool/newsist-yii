@@ -5,8 +5,13 @@ use yii\bootstrap5\ActiveForm;
 use app\models\view_models\NewNewsItemModel;
 
 /** @var NewNewsItemModel $model */
+/** @var yii\web\View $this */
+
 
 $this->title = 'News sharing';
+// obsolete
+// $this->description = 'Create a new news item';
+
 ?>
 
 <?php $form = ActiveForm::begin(['action' => '/news/send-a-new-news-item', 'options' => ['autocomplete' => 'off', 'enctype' => 'multipart/form-data']]) ?>

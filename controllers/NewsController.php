@@ -35,7 +35,6 @@ use DateTime;
 
 class NewsController extends Controller
 {
-
     public function behaviors()
     {
         // TODO delete test
@@ -71,12 +70,22 @@ class NewsController extends Controller
     //     ];
     // }
 
+    private function setCanonicalUrl($canonicalUrl): void
+    {
+        Yii::$app->view->registerLinkTag(['rel' => 'canonical', 'href' => Url::to($canonicalUrl, true)]);
+    }
+
     // GET
     public function actionANewNewsItemForm()
     {
+        $this->setCanonicalUrl('fill-in-a-new-news-item');
         $model = new NewNewsItemModel();
         return $this->render('create', compact('model'));
     }
+
+    // public function beforeAction($action) {
+
+    // }
 
     // POST
     // TODO when posted tag is too long is it deleted???
@@ -94,6 +103,9 @@ class NewsController extends Controller
     // GET
     public function actionNewsItem(string $news_item_id)
     {
+        // TODO how to add canonical url to parameterized url? 
+        $this->setCanonicalUrl('a-look-at-a-specific-news-item');
+        // TODO hide into record
         $news_item_record = NewsItemRecord::find() // the parameter $news_item_id used to be here, but it proved to be redundant. actually find() doesn't accept any parameter and VSC didn't say anything about it.
             ->asArray() // c# AsNoTracking() alternative afaik
             ->alias('ni')
@@ -107,10 +119,12 @@ class NewsController extends Controller
             ])
             ->leftJoin('user AS author', '`author`.`id` = `ni`.`author_id`')
             ->where(['ni.id' => $news_item_id])
-            // turned out that this is workaround. this doesn't work with several news it's pity
-            ->with(['tags' => function ($query) use ($news_item_id) {
-                $query->where(['=', 'nit.news_item_id', $news_item_id]);
-            }])
+            // turned out that this is workaround. this doesn't work with several news. it's pity
+            ->with([
+                'tags' => function ($query) use ($news_item_id) {
+                    $query->where(['=', 'nit.news_item_id', $news_item_id]);
+                }
+            ])
             ->one();
 
         if ($news_item_record == null)
@@ -173,6 +187,7 @@ class NewsController extends Controller
     // GET
     public function actionHome()
     {
+        $this->setCanonicalUrl('a-list-of-news');
         $search_options = new SearchOptionsModel();
         $search_options->load($_GET, '');
         if (!$search_options->validate()) {
