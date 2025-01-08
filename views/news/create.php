@@ -13,10 +13,11 @@ $this->title = 'News sharing';
 <?= $form->field($model, 'title')->textInput(['placeholder' => 'A loud header', 'autofocus' => true])->hint('You can specify where to insert uploaded file(s) using the next markup: <strong>[filename.extension]</strong> example: <strong>[cat.png]</strong> You can display one file several times.') ?>
 <?= $form->field($model, 'content')->textarea(['placeholder' => 'What\'s happened?']) ?>
 <?= $form->field($model, 'files')->fileInput() ?>
-<?= $form->field($model, 'tags')->textInput(['placeholder' => 'e.g. ice-cream,potato,john'])
-?>
+<?= $form->field($model, 'tags')->textInput(['placeholder' => 'e.g. ice-cream,potato,john']) ?>
 <?= Html::submitButton('Publish it') ?>
+<!-- wow, why it's php here instead of =? -->
 <?php ActiveForm::end() ?>
+
 <?php
 // TODO awkward
 if (isset($errors))
